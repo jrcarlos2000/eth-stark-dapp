@@ -1,19 +1,23 @@
 use starknet::ContractAddress;
 
+#[derive(Drop, Serde)]
+struct MyData {
+    a: felt252,
+    b: felt252,
+}
+
 #[starknet::interface]
-pub trait IYourContract<TContractState> {
-    fn gretting(self: @TContractState) -> ByteArray;
-    fn set_gretting(ref self: TContractState, new_greeting: ByteArray, amount_eth: u256);
-    fn withdraw(ref self: TContractState);
-    fn premium(self: @TContractState) -> bool;
+pub trait IL2MessageContract<TContractState> {
 }
 
 #[starknet::contract]
-mod YourContract {
+mod L2MessageContract {
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
-    use starknet::{get_caller_address, get_contract_address};
-    use super::{ContractAddress, IYourContract};
+    use starknet::{get_caller_address, get_contract_address, EthAddress, SyscallResultTrait};
+    use starknet::syscalls::send_message_to_l1_syscall;
+    use super::{ContractAddress, IL2MessageContract, MyData};
+    use core::num::traits::Zero;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
@@ -29,77 +33,70 @@ mod YourContract {
     enum Event {
         #[flat]
         OwnableEvent: OwnableComponent::Event,
-        GreetingChanged: GreetingChanged
+        ValueReceivedFromL1: ValueReceived,
+        StructReceivedFromL1: StructReceived,
     }
 
     #[derive(Drop, starknet::Event)]
-    struct GreetingChanged {
+    struct ValueReceived {
         #[key]
-        greeting_setter: ContractAddress,
-        #[key]
-        new_greeting: ByteArray,
-        premium: bool,
-        value: u256,
+        l1_address: felt252,
+        value: felt252,
     }
+
+    #[derive(Drop, starknet::Event)]
+    struct StructReceived {
+        #[key]
+        l1_address: felt252,
+        data_a: felt252,
+        data_b: felt252,
+    }
+
 
 
     #[storage]
     struct Storage {
-        eth_token: IERC20CamelDispatcher,
-        greeting: ByteArray,
-        premium: bool,
-        total_counter: u256,
-        user_gretting_counter: LegacyMap<ContractAddress, u256>,
+        some_value: felt252,
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState, owner: ContractAddress) {
-        let eth_contract_address = ETH_CONTRACT_ADDRESS.try_into().unwrap();
-        self.eth_token.write(IERC20CamelDispatcher { contract_address: eth_contract_address });
-        self.greeting.write("Building Unstoppable Apps!!!");
         self.ownable.initializer(owner);
     }
 
     #[abi(embed_v0)]
-    impl YourContractImpl of IYourContract<ContractState> {
-        fn gretting(self: @ContractState) -> ByteArray {
-            self.greeting.read()
-        }
-        fn set_gretting(ref self: ContractState, new_greeting: ByteArray, amount_eth: u256) {
-            self.greeting.write(new_greeting);
-            self.total_counter.write(self.total_counter.read() + 1);
-            let user_counter = self.user_gretting_counter.read(get_caller_address());
-            self.user_gretting_counter.write(get_caller_address(), user_counter + 1);
-
-            if amount_eth > 0 {
-                // call approve on UI
-                self
-                    .eth_token
-                    .read()
-                    .transferFrom(get_caller_address(), get_contract_address(), amount_eth);
-                self.premium.write(true);
-            } else {
-                self.premium.write(false);
-            }
-            self
-                .emit(
-                    GreetingChanged {
-                        greeting_setter: get_caller_address(),
-                        new_greeting: self.greeting.read(),
-                        premium: true,
-                        value: 100
-                    }
-                );
-        }
-        fn withdraw(ref self: ContractState) {
-            self.ownable.assert_only_owner();
-            let balance = self.eth_token.read().balanceOf(get_contract_address());
-            self.eth_token.read().transfer(self.ownable.owner(), balance);
-        }
-        fn premium(self: @ContractState) -> bool {
-            self.premium.read()
-        }
+    impl L2MessageContractImpl of IL2MessageContract<ContractState> {
     }
+
+    // -----------------------------------------
+    // -------- L1 - L2 Messaging --------------
+    // -----------------------------------------
+
+    #[l1_handler]
+    fn msg_handler_value(ref self: ContractState, from_address: felt252, value: felt252) {
+        // assert(from_address == ...);
+
+        self.some_value.write(value);
+        self.emit(ValueReceived { l1_address: from_address, value, });
+    }
+
+    /// Handles a message received from L1.
+    /// In this example, the handler is expecting the data members to both be greater than 0.
+    ///
+    /// # Arguments
+    ///
+    /// * `from_address` - The L1 contract sending the message.
+    /// * `data` - Expected data in the payload (automatically deserialized by cairo).
+    #[l1_handler]
+    fn msg_handler_struct(ref self: ContractState, from_address: felt252, data: MyData) {
+        // assert(from_address == ...);
+
+        assert(!data.a.is_zero(), 'data.a is invalid');
+        assert(!data.b.is_zero(), 'data.b is invalid');
+
+        self.emit(StructReceived { l1_address: from_address, data_a: data.a, data_b: data.b, });
+    }
+
 }

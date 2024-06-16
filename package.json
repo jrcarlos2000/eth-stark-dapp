@@ -7,12 +7,15 @@
   "workspaces": {
     "packages": [
       "packages/snfoundry",
-      "packages/nextjs"
+      "packages/nextjs",
+      "packages/foundry"
     ]
   },
   "scripts": {
-    "chain": "yarn workspace @ss-2/snfoundry chain",
-    "deploy": "yarn workspace @ss-2/snfoundry deploy",
+    "chain:starknet": "yarn workspace @ss-2/snfoundry chain",
+    "chain:ethereum": "yarn workspace @ss-2/foundry chain",
+    "deploy:starknet": "yarn workspace @ss-2/snfoundry deploy",
+    "deploy:ethereum": "yarn workspace @ss-2/foundry deploy",
     "test": "yarn workspace @ss-2/snfoundry test",
     "compile": "yarn workspace @ss-2/snfoundry compile",
     "start": "yarn workspace @ss-2/nextjs dev",

@@ -18,10 +18,11 @@ import { appChains } from "~~/services/web3/connectors";
 import { BurnerConnector } from "~~/services/web3/stark-burner/BurnerConnector";
 import provider from "~~/services/web3/provider";
 import { useNativeCurrencyPrice } from "~~/hooks/scaffold-stark/useNativeCurrencyPrice";
+import { useMessaging } from "~~/hooks/scaffold-stark/useMessaging";
 
 const ScaffoldStarkApp = ({ children }: { children: React.ReactNode }) => {
   useNativeCurrencyPrice();
-
+  useMessaging();
   return (
     <>
       <div className="flex flex-col min-h-screen">

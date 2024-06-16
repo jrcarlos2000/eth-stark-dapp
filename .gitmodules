@@ -2,3 +2,13 @@
 	path = packages/snfoundry/local-devnet
 	url = https://github.com/0xSpaceShard/starknet-devnet-rs
 	branch = json-rpc-v0.5.1
+[submodule "packages/foundry/lib/forge-std"]
+        path = packages/foundry/lib/forge-std
+        url = https://github.com/foundry-rs/forge-std
+[submodule "packages/foundry/lib/openzeppelin-contracts"]
+        path = packages/foundry/lib/openzeppelin-contracts
+        url = https://github.com/OpenZeppelin/openzeppelin-contracts
+        branch = release-v5.0
+[submodule "packages/foundry/lib/solidity-bytes-utils"]
+        path = packages/foundry/lib/solidity-bytes-utils
+        url = https://github.com/gnsps/solidity-bytes-utils
