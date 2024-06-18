@@ -11,6 +11,7 @@ import { ChainWithAttributes } from "~~/utils/scaffold-stark";
  * Think about it as a global useState.
  */
 
+// TODO: segregate naming for stark
 type GlobalState = {
   nativeCurrencyPrice: number;
   setNativeCurrencyPrice: (newNativeCurrencyPriceState: number) => void;
