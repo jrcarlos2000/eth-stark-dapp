@@ -37,6 +37,8 @@
     "starknet-dev": "npm:starknet@6.7.0",
     "type-fest": "^4.6.0",
     "usehooks-ts": "^2.13.0",
+    "viem": "2.13.6",
+    "wagmi": "2.9.8",
     "zustand": "^4.1.2"
   },
   "devDependencies": {
