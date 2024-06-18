@@ -12,10 +12,7 @@ import { EthContractName, StarkContractName } from "~~/types/aliases";
 const selectedContractStorageKey = "scaffoldStark2.selectedContract";
 const starknetContracts = Object.keys(getAllStarkContracts()) as ContractName[];
 const ethContracts = Object.keys(getAllEthContracts()) as ContractName[];
-const contractNames = Object.keys({
-  ...starknetContracts,
-  ...ethContracts,
-}) as ContractName[];
+const contractNames = [...starknetContracts, ...ethContracts];
 
 export function DebugContracts() {
   const [selectedContract, setSelectedContract] = useLocalStorage<ContractName>(
