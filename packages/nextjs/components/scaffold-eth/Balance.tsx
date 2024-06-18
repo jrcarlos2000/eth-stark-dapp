@@ -4,7 +4,7 @@ import { Address, formatEther } from "viem";
 import { useDisplayUsdMode } from "~~/hooks/scaffold-eth/useDisplayUsdMode";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { useWatchBalance } from "~~/hooks/scaffold-eth/useWatchBalance";
-import { useGlobalState } from "~~/services/store/store";
+import { useGlobalState } from "~~/services/store/eth-store";
 
 type BalanceProps = {
   address?: Address;
@@ -17,8 +17,12 @@ type BalanceProps = {
  */
 export const Balance = ({ address, className = "", usdMode }: BalanceProps) => {
   const { targetNetwork } = useTargetNetwork();
-  const nativeCurrencyPrice = useGlobalState(state => state.nativeCurrency.price);
-  const isNativeCurrencyPriceFetching = useGlobalState(state => state.nativeCurrency.isFetching);
+  const nativeCurrencyPrice = useGlobalState(
+    (state) => state.nativeCurrency.price
+  );
+  const isNativeCurrencyPriceFetching = useGlobalState(
+    (state) => state.nativeCurrency.isFetching
+  );
 
   const {
     data: balance,
@@ -28,9 +32,16 @@ export const Balance = ({ address, className = "", usdMode }: BalanceProps) => {
     address,
   });
 
-  const { displayUsdMode, toggleDisplayUsdMode } = useDisplayUsdMode({ defaultUsdMode: usdMode });
+  const { displayUsdMode, toggleDisplayUsdMode } = useDisplayUsdMode({
+    defaultUsdMode: usdMode,
+  });
 
-  if (!address || isLoading || balance === null || (isNativeCurrencyPriceFetching && nativeCurrencyPrice === 0)) {
+  if (
+    !address ||
+    isLoading ||
+    balance === null ||
+    (isNativeCurrencyPriceFetching && nativeCurrencyPrice === 0)
+  ) {
     return (
       <div className="animate-pulse flex space-x-4">
         <div className="rounded-md bg-slate-300 h-6 w-6"></div>
@@ -43,7 +54,9 @@ export const Balance = ({ address, className = "", usdMode }: BalanceProps) => {
 
   if (isError) {
     return (
-      <div className={`border-2 border-gray-400 rounded-md px-2 flex flex-col items-center max-w-fit cursor-pointer`}>
+      <div
+        className={`border-2 border-gray-400 rounded-md px-2 flex flex-col items-center max-w-fit cursor-pointer`}
+      >
         <div className="text-warning">Error</div>
       </div>
     );
@@ -65,7 +78,9 @@ export const Balance = ({ address, className = "", usdMode }: BalanceProps) => {
         ) : (
           <>
             <span>{formattedBalance.toFixed(4)}</span>
-            <span className="text-[0.8em] font-bold ml-1">{targetNetwork.nativeCurrency.symbol}</span>
+            <span className="text-[0.8em] font-bold ml-1">
+              {targetNetwork.nativeCurrency.symbol}
+            </span>
           </>
         )}
       </div>

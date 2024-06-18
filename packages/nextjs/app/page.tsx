@@ -4,11 +4,13 @@ import Link from "next/link";
 import type { NextPage } from "next";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Address } from "~~/components/scaffold-stark";
-import { useAccount } from "@starknet-react/core";
+import { useAccount as useStarkAccount } from "@starknet-react/core";
 import { Address as AddressType } from "@starknet-react/chains";
+import { useAccount as useEthAccount } from "wagmi";
 
 const Home: NextPage = () => {
-  const connectedAddress = useAccount();
+  const connectedAddress = useStarkAccount();
+  const connectedEthAddress = useEthAccount();
   return (
     <>
       <div className="flex items-center flex-col flex-grow pt-10">
@@ -18,8 +20,10 @@ const Home: NextPage = () => {
             <span className="block text-4xl font-bold">Scaffold-Stark 2</span>
           </h1>
           <div className="flex justify-center items-center space-x-2">
-            <p className="my-2 font-medium">Connected Address:</p>
+            <p className="my-2 font-medium">Connected Stark Address:</p>
             <Address address={connectedAddress.address as AddressType} />
+            <p className="my-2 font-medium">Connected Eth Address:</p>
+            <Address address={connectedEthAddress.address as AddressType} />
           </div>
           <p className="text-center text-lg">
             Get started by editing{" "}
