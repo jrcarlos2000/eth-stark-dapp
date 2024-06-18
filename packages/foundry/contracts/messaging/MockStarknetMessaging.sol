@@ -1,18 +1,8 @@
-// SPDX-License-Identifier: Apache-2.0.
-pragma solidity ^0.8.0;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.21;
 
 import "@starknet/StarknetMessaging.sol";
-
-/**
-   @notice Interface related to local messaging for Starknet.
-*/
-interface IMockStarknetMessaging {
-    function addMessageHashesFromL2(
-        uint256[] calldata msgHashes
-    )
-        external
-        payable;
-}
+import "./IMockStarknetMessaging.sol";
 
 /**
    @title A superset of StarknetMessaging to support
@@ -28,13 +18,10 @@ interface IMockStarknetMessaging {
    The purpose of this contract is for local development only.
 */
 contract MockStarknetMessaging is StarknetMessaging, IMockStarknetMessaging {
-
     /**
        @notice Hashes were added.
     */
-    event MessageHashesAddedFromL2(
-        uint256[] hashes
-    );
+    event MessageHashesAddedFromL2(uint256[] hashes);
 
     /**
        @notice Adds the hashes of messages from L2.
@@ -43,10 +30,7 @@ contract MockStarknetMessaging is StarknetMessaging, IMockStarknetMessaging {
     */
     function addMessageHashesFromL2(
         uint256[] calldata msgHashes
-    )
-        external
-        payable
-    {
+    ) external payable {
         for (uint256 i = 0; i < msgHashes.length; i++) {
             bytes32 hash = bytes32(msgHashes[i]);
             l2ToL1Messages()[hash] += 1;
@@ -54,5 +38,4 @@ contract MockStarknetMessaging is StarknetMessaging, IMockStarknetMessaging {
 
         emit MessageHashesAddedFromL2(msgHashes);
     }
-
 }

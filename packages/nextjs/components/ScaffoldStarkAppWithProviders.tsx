@@ -19,9 +19,29 @@ import { BurnerConnector } from "~~/services/web3/stark-burner/BurnerConnector";
 import provider from "~~/services/web3/provider";
 import { useNativeCurrencyPrice } from "~~/hooks/scaffold-stark/useNativeCurrencyPrice";
 import { useMessaging } from "~~/hooks/scaffold-stark/useMessaging";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  RainbowKitProvider,
+  darkTheme,
+  lightTheme,
+} from "@rainbow-me/rainbowkit";
+import { WagmiProvider } from "wagmi";
+import { wagmiConfig } from "~~/services/web3/wagmiConfig";
+import { BlockieAvatar } from "./scaffold-stark";
+import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
+
+// tanstack react query config
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const ScaffoldStarkApp = ({ children }: { children: React.ReactNode }) => {
   useNativeCurrencyPrice();
+  useInitializeNativeCurrencyPrice();
   useMessaging();
   return (
     <>
@@ -60,8 +80,19 @@ export const ScaffoldStarkAppWithProviders = ({
       connectors={connectors}
       explorer={starkscan}
     >
-      <ProgressBar />
-      <ScaffoldStarkApp>{children}</ScaffoldStarkApp>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider
+            avatar={BlockieAvatar}
+            theme={
+              mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()
+            }
+          >
+            <ProgressBar />
+            <ScaffoldStarkApp>{children}</ScaffoldStarkApp>
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
     </StarknetConfig>
   );
 };

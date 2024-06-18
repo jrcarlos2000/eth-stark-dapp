@@ -31,7 +31,7 @@ import {
   WriteContractReturnType,
 } from "wagmi/actions";
 import { WriteContractVariables } from "wagmi/query";
-import deployedContractsData from "~~/contracts/deployedContracts";
+import deployedContractsData from "~~/contracts/deployedEthContracts";
 // import externalContractsData from "~~/contracts/externalContracts";
 import scaffoldEthConfig from "~~/scaffold-eth.config";
 
