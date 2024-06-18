@@ -8,7 +8,6 @@ export type ScaffoldStarkConfig = {
   walletAutoConnect: boolean;
 };
 
-// TODO: segregate file name
 const scaffoldStarkConfig = {
   targetNetworks: [chains.devnet],
   // Only show the Burner Wallet when running on devnet
