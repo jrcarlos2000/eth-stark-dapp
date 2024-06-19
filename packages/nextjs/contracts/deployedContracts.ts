@@ -5,14 +5,29 @@
 
 const deployedContracts = {
   devnet: {
-    YourContract: {
+    CrossChainCrowdfundL2: {
       address:
-        "0x00df82af763f545aeade9ab8157668c55aa40441dbad444155e980fde282f1cb",
+        "0x02dd669adaa6bbdd665a351c04a137ee6a7fa3bb3204f84037fcf8d933c387cc",
       abi: [
         {
           type: "impl",
-          name: "YourContractImpl",
-          interface_name: "contracts::YourContract::IYourContract",
+          name: "CrossChainCrowdfundL2Impl",
+          interface_name:
+            "contracts::CrossChainCrowdfundL2::ICrossChainCrowdfundL2",
+        },
+        {
+          type: "struct",
+          name: "core::integer::u256",
+          members: [
+            {
+              name: "low",
+              type: "core::integer::u128",
+            },
+            {
+              name: "high",
+              type: "core::integer::u128",
+            },
+          ],
         },
         {
           type: "struct",
@@ -33,89 +48,88 @@ const deployedContracts = {
           ],
         },
         {
-          type: "struct",
-          name: "core::integer::u256",
-          members: [
-            {
-              name: "low",
-              type: "core::integer::u128",
-            },
-            {
-              name: "high",
-              type: "core::integer::u128",
-            },
-          ],
-        },
-        {
-          type: "enum",
-          name: "core::bool",
-          variants: [
-            {
-              name: "False",
-              type: "()",
-            },
-            {
-              name: "True",
-              type: "()",
-            },
-          ],
-        },
-        {
           type: "interface",
-          name: "contracts::YourContract::IYourContract",
+          name: "contracts::CrossChainCrowdfundL2::ICrossChainCrowdfundL2",
           items: [
             {
               type: "function",
-              name: "gretting",
-              inputs: [],
-              outputs: [
+              name: "create_campaign",
+              inputs: [
                 {
+                  name: "target_amount",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "time_left",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "token",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "data_cid",
                   type: "core::byte_array::ByteArray",
                 },
               ],
-              state_mutability: "view",
+              outputs: [],
+              state_mutability: "external",
             },
             {
               type: "function",
-              name: "set_gretting",
-              inputs: [
+              name: "get_campaign_counter",
+              inputs: [],
+              outputs: [
                 {
-                  name: "new_greeting",
-                  type: "core::byte_array::ByteArray",
-                },
-                {
-                  name: "amount_eth",
                   type: "core::integer::u256",
                 },
               ],
-              outputs: [],
-              state_mutability: "external",
+              state_mutability: "view",
             },
             {
               type: "function",
-              name: "withdraw",
-              inputs: [],
-              outputs: [],
-              state_mutability: "external",
-            },
-            {
-              type: "function",
-              name: "premium",
-              inputs: [],
+              name: "get_campaign_cid",
+              inputs: [
+                {
+                  name: "campaign_id",
+                  type: "core::integer::u256",
+                },
+              ],
               outputs: [
                 {
-                  type: "core::bool",
+                  type: "core::byte_array::ByteArray",
                 },
               ],
               state_mutability: "view",
             },
             {
               type: "function",
-              name: "get_some_value",
-              inputs: [],
+              name: "get_campaign_token",
+              inputs: [
+                {
+                  name: "campaign_id",
+                  type: "core::integer::u256",
+                },
+              ],
               outputs: [
                 {
-                  type: "core::felt252",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_campaign_data_cid",
+              inputs: [
+                {
+                  name: "campaign_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "(core::integer::u256, core::integer::u256, core::integer::u256, core::integer::u8)",
                 },
               ],
               state_mutability: "view",
@@ -174,46 +188,38 @@ const deployedContracts = {
           ],
         },
         {
-          type: "l1_handler",
-          name: "msg_handler_values",
-          inputs: [
-            {
-              name: "from_address",
-              type: "core::felt252",
-            },
-            {
-              name: "value",
-              type: "core::felt252",
-            },
-          ],
-          outputs: [],
-          state_mutability: "external",
-        },
-        {
           type: "struct",
-          name: "contracts::YourContract::MyData",
+          name: "contracts::CrossChainCrowdfundL2::L1Campaign",
           members: [
             {
-              name: "a",
+              name: "targetAmount",
               type: "core::felt252",
             },
             {
-              name: "b",
+              name: "token",
+              type: "core::felt252",
+            },
+            {
+              name: "timeLeft",
+              type: "core::felt252",
+            },
+            {
+              name: "creator",
               type: "core::felt252",
             },
           ],
         },
         {
           type: "l1_handler",
-          name: "msg_handler_struct",
+          name: "create_campaign_from_l1",
           inputs: [
             {
               name: "from_address",
               type: "core::felt252",
             },
             {
-              name: "data",
-              type: "contracts::YourContract::MyData",
+              name: "l1_campaign",
+              type: "contracts::CrossChainCrowdfundL2::L1Campaign",
             },
           ],
           outputs: [],
@@ -272,34 +278,7 @@ const deployedContracts = {
         },
         {
           type: "event",
-          name: "contracts::YourContract::YourContract::GreetingChanged",
-          kind: "struct",
-          members: [
-            {
-              name: "greeting_setter",
-              type: "core::starknet::contract_address::ContractAddress",
-              kind: "key",
-            },
-            {
-              name: "new_greeting",
-              type: "core::byte_array::ByteArray",
-              kind: "key",
-            },
-            {
-              name: "premium",
-              type: "core::bool",
-              kind: "data",
-            },
-            {
-              name: "value",
-              type: "core::integer::u256",
-              kind: "data",
-            },
-          ],
-        },
-        {
-          type: "event",
-          name: "contracts::YourContract::YourContract::ValueReceived",
+          name: "contracts::CrossChainCrowdfundL2::CrossChainCrowdfundL2::ValueReceived",
           kind: "struct",
           members: [
             {
@@ -316,7 +295,7 @@ const deployedContracts = {
         },
         {
           type: "event",
-          name: "contracts::YourContract::YourContract::StructReceived",
+          name: "contracts::CrossChainCrowdfundL2::CrossChainCrowdfundL2::StructReceived",
           kind: "struct",
           members: [
             {
@@ -338,7 +317,7 @@ const deployedContracts = {
         },
         {
           type: "event",
-          name: "contracts::YourContract::YourContract::Event",
+          name: "contracts::CrossChainCrowdfundL2::CrossChainCrowdfundL2::Event",
           kind: "enum",
           variants: [
             {
@@ -347,18 +326,13 @@ const deployedContracts = {
               kind: "flat",
             },
             {
-              name: "GreetingChanged",
-              type: "contracts::YourContract::YourContract::GreetingChanged",
-              kind: "nested",
-            },
-            {
               name: "ValueReceivedFromL1",
-              type: "contracts::YourContract::YourContract::ValueReceived",
+              type: "contracts::CrossChainCrowdfundL2::CrossChainCrowdfundL2::ValueReceived",
               kind: "nested",
             },
             {
               name: "StructReceivedFromL1",
-              type: "contracts::YourContract::YourContract::StructReceived",
+              type: "contracts::CrossChainCrowdfundL2::CrossChainCrowdfundL2::StructReceived",
               kind: "nested",
             },
           ],

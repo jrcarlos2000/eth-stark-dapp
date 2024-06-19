@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Script.sol";
 
-import {L1MessageContract} from "../contracts/L1MessageContract.sol";
+import {CrossChainCrowdfundL1} from "../contracts/CrossChainCrowdfundL1.sol";
 
 /**
  * @notice A simple script to send a message to Starknet.
@@ -25,20 +25,11 @@ contract Value is Script {
     function run() public {
         vm.startBroadcast(_privateKey);
 
-        uint256 randomValue = 1;
-
-        // Remember that there is a cost of at least 20k wei to send a message.
-        // Let's send 30k here to ensure that we pay enough for our payload serialization.
-        L1MessageContract(payable(_contractMsgAddress)).sendMessage{
+        // // Remember that there is a cost of at least 20k wei to send a message.
+        // // Let's send 30k here to ensure that we pay enough for our payload serialization.
+        CrossChainCrowdfundL1(payable(_contractMsgAddress)).createCampaign{
             value: 50000
-        }(_l2ContractAddress, randomValue);
-
-        uint256 HANDLER_FULL = 0x9c5421de947699472df434466845d68528f221a52fce7ad2934c5dae2e1f1cdc;
-        // uint256 mask_252 = (HANDLER_FULL << 5) / 2 ** 5;
-        uint256 mask_252 = HANDLER_FULL % (2 ** 252);
-
-        // console.logUint(mask_252);
-        console.logBytes32(bytes32(mask_252));
+        }(1, 100000, address(1), 10000, "dataCid");
 
         vm.stopBroadcast();
     }
