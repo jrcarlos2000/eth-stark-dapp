@@ -2,19 +2,23 @@
 
 import { useEffect } from "react";
 import { useLocalStorage } from "usehooks-ts";
-import { ContractUI } from "~~/app/debug/_components/contract";
-import { ContractName } from "~~/utils/scaffold-stark/contract";
-import { getAllContracts } from "~~/utils/scaffold-stark/contractsData";
+import { ContractUI as StarkContractUI } from "~~/app/debug/_components/contract";
+import { ContractName, ContractType } from "~~/types/aggregations";
+import { getAllContracts as getAllEthContracts } from "~~/utils/scaffold-eth/contractsData";
+import { getAllContracts as getAllStarkContracts } from "~~/utils/scaffold-stark/contractsData";
+import { ContractUI as EthContractUI } from "./eth-contract";
+import { EthContractName, StarkContractName } from "~~/types/aliases";
 
 const selectedContractStorageKey = "scaffoldStark2.selectedContract";
-const contractsData = getAllContracts();
-const contractNames = Object.keys(contractsData) as ContractName[];
+const starknetContracts = Object.keys(getAllStarkContracts()) as ContractName[];
+const ethContracts = Object.keys(getAllEthContracts()) as ContractName[];
+const contractNames = [...starknetContracts, ...ethContracts];
 
 export function DebugContracts() {
   const [selectedContract, setSelectedContract] = useLocalStorage<ContractName>(
     selectedContractStorageKey,
     contractNames[0],
-    { initializeWithValue: false },
+    { initializeWithValue: false }
   );
 
   useEffect(() => {
@@ -46,13 +50,21 @@ export function DebugContracts() {
               ))}
             </div>
           )}
-          {contractNames.map((contractName) => (
-            <ContractUI
-              key={contractName}
-              contractName={contractName}
-              className={contractName === selectedContract ? "" : "hidden"}
-            />
-          ))}
+          {contractNames.map((contractName) =>
+            starknetContracts.includes(contractName) ? (
+              <StarkContractUI
+                key={contractName}
+                contractName={contractName as StarkContractName}
+                className={contractName === selectedContract ? "" : "hidden"}
+              />
+            ) : (
+              <EthContractUI
+                key={contractName}
+                contractName={contractName as EthContractName}
+                className={contractName === selectedContract ? "" : "hidden"}
+              />
+            )
+          )}
         </>
       )}
     </div>

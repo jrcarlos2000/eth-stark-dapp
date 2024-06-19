@@ -1,4 +1,5 @@
 "use client";
+import "@rainbow-me/rainbowkit/styles.css";
 
 import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
@@ -8,6 +9,7 @@ import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
 import { useOutsideClick } from "~~/hooks/scaffold-stark";
 import { CustomConnectButton } from "~~/components/scaffold-stark/CustomConnectButton";
 import { FaucetButton } from "~~/components/scaffold-stark/FaucetButton";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 type HeaderMenuLink = {
   label: string;
@@ -61,7 +63,7 @@ export const Header = () => {
   const burgerMenuRef = useRef<HTMLDivElement>(null);
   useOutsideClick(
     burgerMenuRef,
-    useCallback(() => setIsDrawerOpen(false), []),
+    useCallback(() => setIsDrawerOpen(false), [])
   );
 
   return (
@@ -114,8 +116,13 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end flex-grow mr-4">
+        {/* starknet wallets */}
         <CustomConnectButton />
         <FaucetButton />
+
+        {/* TODO: use custom connect button, now use rainbow for POC */}
+        {/* eth wallets */}
+        <ConnectButton label="Connect ETH Wallet" />
       </div>
     </div>
   );
