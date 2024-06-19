@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {L1MessageContract} from "../contracts/L1MessageContract.sol";
+import {CrossChainCrowdfundL1} from "../contracts/CrossChainCrowdfundL1.sol";
 import "./DeployHelpers.s.sol";
 import {IStarknetMessaging} from "@starknet/IStarknetMessaging.sol";
 
@@ -17,7 +17,7 @@ contract DeployScript is ScaffoldETHDeploy {
         }
         vm.startBroadcast(deployerPrivateKey);
         IStarknetMessaging starknetMessaging = _starknetMessaging(); // read only once
-        L1MessageContract l1MessageContract = new L1MessageContract(
+        CrossChainCrowdfundL1 l1MessageContract = new CrossChainCrowdfundL1(
             address(starknetMessaging)
         );
         console.logString(
@@ -26,6 +26,10 @@ contract DeployScript is ScaffoldETHDeploy {
                 vm.toString(address(l1MessageContract))
             )
         );
+
+        // SETUP L2 CONTRACT ADDRESS
+        uint256 l2ContractAddress = 0x02dd669adaa6bbdd665a351c04a137ee6a7fa3bb3204f84037fcf8d933c387cc;
+        l1MessageContract.setUpTargetContract(l2ContractAddress);
         vm.stopBroadcast();
 
         /**
