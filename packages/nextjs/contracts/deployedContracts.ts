@@ -7,7 +7,7 @@ const deployedContracts = {
   devnet: {
     MockUsdt: {
       address:
-        "0x00afc21b760dc3a53c964f81449660ba67b0a3858925dc89c2debfd89a40f22a",
+        "0x0768eb6034d1f603be65380b8e477b82ed99acf99d81decbba86693f505655a2",
       abi: [
         {
           type: "impl",
@@ -399,7 +399,7 @@ const deployedContracts = {
     },
     CrossChainCrowdfundL2: {
       address:
-        "0x0528ccfb0acc5ab72394b0a1fca431a9218544e1a8963aa32b5fc33a820cf870",
+        "0x03024f570ed19afa1fd957202e43b5af5bdee08e626f300b8f61fa623805e21f",
       abi: [
         {
           type: "impl",
@@ -522,6 +522,17 @@ const deployedContracts = {
               ],
               state_mutability: "view",
             },
+            {
+              type: "function",
+              name: "last_recipient",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              state_mutability: "view",
+            },
           ],
         },
         {
@@ -578,6 +589,36 @@ const deployedContracts = {
               type: "core::starknet::contract_address::ContractAddress",
             },
           ],
+        },
+        {
+          type: "struct",
+          name: "contracts::CrossChainCrowdfundL2::L1SucessCampaignMessage",
+          members: [
+            {
+              name: "l1CampaignId",
+              type: "core::felt252",
+            },
+            {
+              name: "l2Recipient",
+              type: "core::felt252",
+            },
+          ],
+        },
+        {
+          type: "l1_handler",
+          name: "set_succesful_campaign",
+          inputs: [
+            {
+              name: "from_address",
+              type: "core::felt252",
+            },
+            {
+              name: "l1_success_campaign_message",
+              type: "contracts::CrossChainCrowdfundL2::L1SucessCampaignMessage",
+            },
+          ],
+          outputs: [],
+          state_mutability: "external",
         },
         {
           type: "event",

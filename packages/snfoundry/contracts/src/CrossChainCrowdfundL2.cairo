@@ -1,11 +1,9 @@
 use starknet::{ContractAddress, get_block_timestamp};
 
 #[derive(Drop, Serde)]
-struct L1Campaign {
-    targetAmount: felt252,
-    token: felt252,
-    timeLeft: felt252,
-    creator: felt252,
+struct L1SucessCampaignMessage {
+    l1CampaignId: felt252,
+    l2Recipient: felt252,
 }
 
 
@@ -27,7 +25,11 @@ pub trait ICrossChainCrowdfundL2<TContractState> {
 
     // view functions
     fn get_strk_campaign_counter(self: @TContractState) -> u256;
-    fn get_strk_campaign(self: @TContractState, campaign_id: u256) -> (u256, u256, u256, ByteArray);
+    fn get_strk_campaign(self: @TContractState, campaign_id: u256) -> (u256, u256, u256, ByteArray); // shows target amount, raised amount, deadline, data_cid
+    fn get_eth_campaign(self: @TContractState, campaign_id: u256) -> u256; // todo add other elements, for now only raised amount
+
+    //test view
+    fn last_recipient(self: @TContractState) -> ContractAddress;
 }
 
 /// @author Carlos Ramos
@@ -41,7 +43,7 @@ mod CrossChainCrowdfundL2 {
     use openzeppelin::token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
     use starknet::{get_caller_address, get_contract_address, EthAddress, SyscallResultTrait};
     use starknet::syscalls::send_message_to_l1_syscall;
-    use super::{ContractAddress, ICrossChainCrowdfundL2, L1Campaign, Campaign, get_block_timestamp};
+    use super::{ContractAddress, ICrossChainCrowdfundL2, L1SucessCampaignMessage, Campaign, get_block_timestamp};
     use core::num::traits::Zero;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -89,6 +91,9 @@ mod CrossChainCrowdfundL2 {
         // ethereum campaigns
         eth_campaign_amount_raised: LegacyMap<u256, u256>,
 
+        // some test 
+        last_recipient: ContractAddress,    
+
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
     }
@@ -118,6 +123,10 @@ mod CrossChainCrowdfundL2 {
             (target_amount, raised_amount, deadline, data_cid)
         }
 
+        fn get_eth_campaign(self: @ContractState, campaign_id: u256) -> u256 {
+            self.eth_campaign_amount_raised.read(campaign_id)
+        }
+
 
         fn deposit_to_eth_campaign(ref self: ContractState, eth_campaign_id: u256, amount: u256) {
             // use base token
@@ -140,17 +149,23 @@ mod CrossChainCrowdfundL2 {
             let raised_amount = self.strk_campaign_raised_amount.read(strk_campaign_id);
             self.strk_campaign_raised_amount.write(strk_campaign_id, raised_amount + amount);
         }
+
+        fn last_recipient(self: @ContractState) -> ContractAddress {
+            self.last_recipient.read()
+        }
     }
 
-    // #[l1_handler]
-    // fn create_campaign_from_l1(ref self: ContractState, from_address: felt252, l1_campaign: L1Campaign) {
-    //     let target_amount: u256 = l1_campaign.targetAmount.try_into().unwrap();
-    //     let mut time_left: u256 = l1_campaign.timeLeft.try_into().unwrap();
-    //     let token:ContractAddress = l1_campaign.token.try_into().unwrap();
-    //     let buffer_time:u256 = 15;  // 15 seconds
-    //     time_left = time_left - buffer_time;
-    //     self._create_campaign(target_amount, time_left, token, "", 1);
-    // }
+    #[l1_handler]
+    fn set_succesful_campaign(ref self: ContractState, from_address: felt252, l1_success_campaign_message: L1SucessCampaignMessage) {
+        let l1_campaign_id: u256 = l1_success_campaign_message.l1CampaignId.try_into().unwrap();
+        let l2_recipient: ContractAddress = l1_success_campaign_message.l2Recipient.try_into().unwrap();
+        self.last_recipient.write(l2_recipient);
+        // transfer the funds to the recipient
+        let raised_amount = self.eth_campaign_amount_raised.read(l1_campaign_id);
+        self.eth_campaign_amount_raised.write(l1_campaign_id, 0);
+        let token = self.base_token.read();
+        let is_success = IERC20CamelDispatcher { contract_address: token }.transfer(l2_recipient, raised_amount);
+    }
 
     /// Handles a message received from L1.
     /// In this example, the handler is expecting the data members to both be greater than 0.

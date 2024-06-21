@@ -3,6 +3,7 @@ pragma solidity ^0.8.21;
 
 import "@starknet/IStarknetMessaging.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @author Carlos Ramos
 /// @notice missing handling of deadlines in a crosschain context, we can use checkpoints for it
@@ -11,9 +12,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract CrossChainCrowdfundL1 is Ownable {
     IStarknetMessaging internal _starknetMessaging;
     uint256 internal _l2ContractAddress;
+    address internal _baseToken;
 
-    uint256 public CREATE_CAMPAIGN_FROM_L1_SELECTOR =
-        0xf1f0e6e952e8d07dfa197200b7e68e92bf9d918634cad516669544a537c044; // create_campaign_from_l1 function on l2
+    uint256 public SET_SUCCESSFUL_CAMPAIGN =
+        0x2f2311889ce7c6dd0861f57466ac4f28b41ea2c5dadef8c603c6cbabaa5714e; // set_successful_campaign function on l2
 
     struct EthCampaign {
         uint256 targetAmount;
@@ -45,6 +47,7 @@ contract CrossChainCrowdfundL1 is Ownable {
         address baseToken
     ) Ownable(msg.sender) {
         _starknetMessaging = IStarknetMessaging(starknetMessaging);
+        _baseToken = baseToken;
     }
 
     function setUpTargetContract(uint256 l2ContractAddress) external onlyOwner {
@@ -72,6 +75,29 @@ contract CrossChainCrowdfundL1 is Ownable {
             dataCid
         );
         campaignCounter++;
+    }
+
+    function campaignOwnerWithdraw(
+        uint256 campaignId,
+        uint256 l2recipient
+    ) external payable {
+        require(
+            campaigns[campaignId].owner == msg.sender,
+            "Only the owner can withdraw"
+        );
+        uint256 amount = campaigns[campaignId].raisedAmount;
+        campaigns[campaignId].raisedAmount = 0;
+        IERC20(_baseToken).transfer(address(uint160(l2recipient)), amount);
+
+        // l2 message
+        uint256[] memory payload = new uint256[](2);
+        payload[0] = campaignId;
+        payload[1] = l2recipient;
+        _starknetMessaging.sendMessageToL2{value: msg.value}(
+            _l2ContractAddress,
+            SET_SUCCESSFUL_CAMPAIGN,
+            payload
+        );
     }
 
     // function createCampaign(
@@ -112,19 +138,19 @@ contract CrossChainCrowdfundL1 is Ownable {
         // );
     }
 
-    function sendMessage(
-        uint256 l2ContractAddress,
-        uint256 randomNumber
-    ) external payable {
-        uint256[] memory payload = new uint256[](1);
-        payload[0] = randomNumber;
+    // function sendMessage(
+    //     uint256 l2ContractAddress,
+    //     uint256 randomNumber
+    // ) external payable {
+    //     uint256[] memory payload = new uint256[](1);
+    //     payload[0] = randomNumber;
 
-        _starknetMessaging.sendMessageToL2{value: msg.value}(
-            l2ContractAddress,
-            CREATE_CAMPAIGN_FROM_L1_SELECTOR,
-            payload
-        );
-    }
+    //     _starknetMessaging.sendMessageToL2{value: msg.value}(
+    //         l2ContractAddress,
+    //         SET_SUCCESSFUL_CAMPAIGN,
+    //         payload
+    //     );
+    // }
 
     // function sendMessage(
     //     uint256 l2ContractAddress,
