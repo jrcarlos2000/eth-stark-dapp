@@ -4,6 +4,10 @@ pragma solidity ^0.8.21;
 import "@starknet/IStarknetMessaging.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+/// @author Carlos Ramos
+/// @notice missing handling of deadlines in a crosschain context, we can use checkpoints for it
+/// @dev when claiming from a different chain, add a cooldown time, like 15 mins before.
+
 contract CrossChainCrowdfundL1 is Ownable {
     IStarknetMessaging internal _starknetMessaging;
     uint256 internal _l2ContractAddress;
@@ -11,24 +15,35 @@ contract CrossChainCrowdfundL1 is Ownable {
     uint256 public CREATE_CAMPAIGN_FROM_L1_SELECTOR =
         0xf1f0e6e952e8d07dfa197200b7e68e92bf9d918634cad516669544a537c044; // create_campaign_from_l1 function on l2
 
-    enum CampaignType {
-        ETHEREUM,
-        STARKNET
-    }
-
-    struct Campaign {
+    struct EthCampaign {
         uint256 targetAmount;
         uint256 raisedAmount;
-        address token;
-        uint256 deadline;
+        uint256 duration;
+        uint256 startTime;
         string dataCid;
+        address owner;
     }
 
-    uint256 campaignCounter = 1;
-    mapping(uint256 => Campaign) campaigns;
-    mapping(address => address) l1ToL2Token;
+    struct StrkCampaign {
+        uint256 raisedAmount;
+    }
 
-    constructor(address starknetMessaging) Ownable(msg.sender) {
+    event EthCampaignCreated(
+        uint256 campaignId,
+        uint256 owner,
+        uint256 targetAmount,
+        uint256 deadline,
+        string dataCid
+    );
+
+    uint256 campaignCounter = 1;
+    mapping(uint256 => EthCampaign) public campaigns;
+    mapping(uint256 => StrkCampaign) public strkCampaigns;
+
+    constructor(
+        address starknetMessaging,
+        address baseToken
+    ) Ownable(msg.sender) {
         _starknetMessaging = IStarknetMessaging(starknetMessaging);
     }
 
@@ -36,39 +51,58 @@ contract CrossChainCrowdfundL1 is Ownable {
         _l2ContractAddress = l2ContractAddress;
     }
 
-    function setL2Token(address l1Token, address l2Token) external onlyOwner {
-        l1ToL2Token[l1Token] = l2Token;
+    function createCampaign(
+        uint256 targetAmount,
+        uint256 duration,
+        string memory dataCid
+    ) external {
+        campaigns[campaignCounter] = EthCampaign({
+            targetAmount: targetAmount,
+            raisedAmount: 0,
+            duration: duration,
+            startTime: block.timestamp,
+            dataCid: dataCid,
+            owner: msg.sender
+        });
+        emit EthCampaignCreated(
+            campaignCounter,
+            uint256(uint160(msg.sender)),
+            targetAmount,
+            block.timestamp + duration,
+            dataCid
+        );
+        campaignCounter++;
     }
 
-    function createCampaign(
-        uint8 campaignType,
-        uint256 targetAmount,
-        address token,
-        uint256 timeLeft,
-        string memory dataCid
-    ) external payable {
-        if (CampaignType(campaignType) == CampaignType.ETHEREUM) {
-            campaigns[campaignCounter] = Campaign({
-                targetAmount: targetAmount,
-                raisedAmount: 0,
-                token: token,
-                deadline: block.timestamp + timeLeft,
-                dataCid: dataCid
-            });
-            campaignCounter++;
-        } else (CampaignType(campaignType) == CampaignType.STARKNET) {
-            uint256[] memory payload = new uint256[](4);
-            payload[0] = targetAmount;
-            payload[1] = uint256(uint160(token));
-            payload[2] = timeLeft;
-            payload[3] = uint256(uint160(address(msg.sender)));
-            _starknetMessaging.sendMessageToL2{value: msg.value}(
-                _l2ContractAddress,
-                CREATE_CAMPAIGN_FROM_L1_SELECTOR,
-                payload
-            );
-        }
-    }
+    // function createCampaign(
+    //     uint8 campaignType,
+    //     uint256 targetAmount,
+    //     address token,
+    //     uint256 timeLeft,
+    //     string memory dataCid
+    // ) external payable {
+    //     if (CampaignType(campaignType) == CampaignType.ETHEREUM) {
+    //         campaigns[campaignCounter] = Campaign({
+    //             targetAmount: targetAmount,
+    //             raisedAmount: 0,
+    //             token: token,
+    //             deadline: block.timestamp + timeLeft,
+    //             dataCid: dataCid
+    //         });
+    //         campaignCounter++;
+    //     } else (CampaignType(campaignType) == CampaignType.STARKNET) {
+    //         uint256[] memory payload = new uint256[](4);
+    //         payload[0] = targetAmount;
+    //         payload[1] = uint256(uint160(token));
+    //         payload[2] = timeLeft;
+    //         payload[3] = uint256(uint160(address(msg.sender)));
+    //         _starknetMessaging.sendMessageToL2{value: msg.value}(
+    //             _l2ContractAddress,
+    //             CREATE_CAMPAIGN_FROM_L1_SELECTOR,
+    //             payload
+    //         );
+    //     }
+    // }
 
     function withdraw(uint256 campaignId) external {
         // _starknetMessaging.sendMessageToL2{value: msg.value}(

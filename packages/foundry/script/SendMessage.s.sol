@@ -27,9 +27,9 @@ contract Value is Script {
 
         // // Remember that there is a cost of at least 20k wei to send a message.
         // // Let's send 30k here to ensure that we pay enough for our payload serialization.
-        CrossChainCrowdfundL1(payable(_contractMsgAddress)).createCampaign{
-            value: 50000
-        }(1, 100000, address(1), 10000, "dataCid");
+        // CrossChainCrowdfundL1(payable(_contractMsgAddress)).createCampaign{
+        //     value: 50000
+        // }(1, 100000, address(1), 10000, "dataCid");
 
         vm.stopBroadcast();
     }

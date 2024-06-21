@@ -5,9 +5,401 @@
 
 const deployedContracts = {
   devnet: {
+    MockUsdt: {
+      address:
+        "0x00afc21b760dc3a53c964f81449660ba67b0a3858925dc89c2debfd89a40f22a",
+      abi: [
+        {
+          type: "impl",
+          name: "MockTokenImpl",
+          interface_name: "contracts::MockUsdt::IMockToken",
+        },
+        {
+          type: "struct",
+          name: "core::integer::u256",
+          members: [
+            {
+              name: "low",
+              type: "core::integer::u128",
+            },
+            {
+              name: "high",
+              type: "core::integer::u128",
+            },
+          ],
+        },
+        {
+          type: "interface",
+          name: "contracts::MockUsdt::IMockToken",
+          items: [
+            {
+              type: "function",
+              name: "faucet",
+              inputs: [
+                {
+                  name: "recipient",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "amount",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+          ],
+        },
+        {
+          type: "impl",
+          name: "ERC20Impl",
+          interface_name: "openzeppelin::token::erc20::interface::IERC20",
+        },
+        {
+          type: "enum",
+          name: "core::bool",
+          variants: [
+            {
+              name: "False",
+              type: "()",
+            },
+            {
+              name: "True",
+              type: "()",
+            },
+          ],
+        },
+        {
+          type: "interface",
+          name: "openzeppelin::token::erc20::interface::IERC20",
+          items: [
+            {
+              type: "function",
+              name: "total_supply",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "balance_of",
+              inputs: [
+                {
+                  name: "account",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "allowance",
+              inputs: [
+                {
+                  name: "owner",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "spender",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "transfer",
+              inputs: [
+                {
+                  name: "recipient",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "amount",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::bool",
+                },
+              ],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "transfer_from",
+              inputs: [
+                {
+                  name: "sender",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "recipient",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "amount",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::bool",
+                },
+              ],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "approve",
+              inputs: [
+                {
+                  name: "spender",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "amount",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::bool",
+                },
+              ],
+              state_mutability: "external",
+            },
+          ],
+        },
+        {
+          type: "impl",
+          name: "ERC20MetadataImpl",
+          interface_name:
+            "openzeppelin::token::erc20::interface::IERC20Metadata",
+        },
+        {
+          type: "struct",
+          name: "core::byte_array::ByteArray",
+          members: [
+            {
+              name: "data",
+              type: "core::array::Array::<core::bytes_31::bytes31>",
+            },
+            {
+              name: "pending_word",
+              type: "core::felt252",
+            },
+            {
+              name: "pending_word_len",
+              type: "core::integer::u32",
+            },
+          ],
+        },
+        {
+          type: "interface",
+          name: "openzeppelin::token::erc20::interface::IERC20Metadata",
+          items: [
+            {
+              type: "function",
+              name: "name",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::byte_array::ByteArray",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "symbol",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::byte_array::ByteArray",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "decimals",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::integer::u8",
+                },
+              ],
+              state_mutability: "view",
+            },
+          ],
+        },
+        {
+          type: "impl",
+          name: "ERC20CamelOnlyImpl",
+          interface_name:
+            "openzeppelin::token::erc20::interface::IERC20CamelOnly",
+        },
+        {
+          type: "interface",
+          name: "openzeppelin::token::erc20::interface::IERC20CamelOnly",
+          items: [
+            {
+              type: "function",
+              name: "totalSupply",
+              inputs: [],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "balanceOf",
+              inputs: [
+                {
+                  name: "account",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u256",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "transferFrom",
+              inputs: [
+                {
+                  name: "sender",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "recipient",
+                  type: "core::starknet::contract_address::ContractAddress",
+                },
+                {
+                  name: "amount",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::bool",
+                },
+              ],
+              state_mutability: "external",
+            },
+          ],
+        },
+        {
+          type: "constructor",
+          name: "constructor",
+          inputs: [
+            {
+              name: "recipient",
+              type: "core::starknet::contract_address::ContractAddress",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin::token::erc20::erc20::ERC20Component::Transfer",
+          kind: "struct",
+          members: [
+            {
+              name: "from",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "to",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "value",
+              type: "core::integer::u256",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin::token::erc20::erc20::ERC20Component::Approval",
+          kind: "struct",
+          members: [
+            {
+              name: "owner",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "spender",
+              type: "core::starknet::contract_address::ContractAddress",
+              kind: "key",
+            },
+            {
+              name: "value",
+              type: "core::integer::u256",
+              kind: "data",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "openzeppelin::token::erc20::erc20::ERC20Component::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "Transfer",
+              type: "openzeppelin::token::erc20::erc20::ERC20Component::Transfer",
+              kind: "nested",
+            },
+            {
+              name: "Approval",
+              type: "openzeppelin::token::erc20::erc20::ERC20Component::Approval",
+              kind: "nested",
+            },
+          ],
+        },
+        {
+          type: "event",
+          name: "contracts::MockUsdt::MockUsdt::Event",
+          kind: "enum",
+          variants: [
+            {
+              name: "ERC20Event",
+              type: "openzeppelin::token::erc20::erc20::ERC20Component::Event",
+              kind: "flat",
+            },
+          ],
+        },
+      ],
+    },
     CrossChainCrowdfundL2: {
       address:
-        "0x02dd669adaa6bbdd665a351c04a137ee6a7fa3bb3204f84037fcf8d933c387cc",
+        "0x0528ccfb0acc5ab72394b0a1fca431a9218544e1a8963aa32b5fc33a820cf870",
       abi: [
         {
           type: "impl",
@@ -60,12 +452,8 @@ const deployedContracts = {
                   type: "core::integer::u256",
                 },
                 {
-                  name: "time_left",
+                  name: "duration",
                   type: "core::integer::u256",
-                },
-                {
-                  name: "token",
-                  type: "core::starknet::contract_address::ContractAddress",
                 },
                 {
                   name: "data_cid",
@@ -77,7 +465,39 @@ const deployedContracts = {
             },
             {
               type: "function",
-              name: "get_campaign_counter",
+              name: "deposit_to_eth_campaign",
+              inputs: [
+                {
+                  name: "eth_campaign_id",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "amount",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "deposit_to_strk_campaign",
+              inputs: [
+                {
+                  name: "strk_campaign_id",
+                  type: "core::integer::u256",
+                },
+                {
+                  name: "amount",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [],
+              state_mutability: "external",
+            },
+            {
+              type: "function",
+              name: "get_strk_campaign_counter",
               inputs: [],
               outputs: [
                 {
@@ -88,7 +508,7 @@ const deployedContracts = {
             },
             {
               type: "function",
-              name: "get_campaign_cid",
+              name: "get_strk_campaign",
               inputs: [
                 {
                   name: "campaign_id",
@@ -97,39 +517,7 @@ const deployedContracts = {
               ],
               outputs: [
                 {
-                  type: "core::byte_array::ByteArray",
-                },
-              ],
-              state_mutability: "view",
-            },
-            {
-              type: "function",
-              name: "get_campaign_token",
-              inputs: [
-                {
-                  name: "campaign_id",
-                  type: "core::integer::u256",
-                },
-              ],
-              outputs: [
-                {
-                  type: "core::starknet::contract_address::ContractAddress",
-                },
-              ],
-              state_mutability: "view",
-            },
-            {
-              type: "function",
-              name: "get_campaign_data_cid",
-              inputs: [
-                {
-                  name: "campaign_id",
-                  type: "core::integer::u256",
-                },
-              ],
-              outputs: [
-                {
-                  type: "(core::integer::u256, core::integer::u256, core::integer::u256, core::integer::u8)",
+                  type: "(core::integer::u256, core::integer::u256, core::integer::u256, core::byte_array::ByteArray)",
                 },
               ],
               state_mutability: "view",
@@ -185,45 +573,11 @@ const deployedContracts = {
               name: "owner",
               type: "core::starknet::contract_address::ContractAddress",
             },
-          ],
-        },
-        {
-          type: "struct",
-          name: "contracts::CrossChainCrowdfundL2::L1Campaign",
-          members: [
             {
-              name: "targetAmount",
-              type: "core::felt252",
-            },
-            {
-              name: "token",
-              type: "core::felt252",
-            },
-            {
-              name: "timeLeft",
-              type: "core::felt252",
-            },
-            {
-              name: "creator",
-              type: "core::felt252",
+              name: "base_token",
+              type: "core::starknet::contract_address::ContractAddress",
             },
           ],
-        },
-        {
-          type: "l1_handler",
-          name: "create_campaign_from_l1",
-          inputs: [
-            {
-              name: "from_address",
-              type: "core::felt252",
-            },
-            {
-              name: "l1_campaign",
-              type: "contracts::CrossChainCrowdfundL2::L1Campaign",
-            },
-          ],
-          outputs: [],
-          state_mutability: "external",
         },
         {
           type: "event",
@@ -278,39 +632,32 @@ const deployedContracts = {
         },
         {
           type: "event",
-          name: "contracts::CrossChainCrowdfundL2::CrossChainCrowdfundL2::ValueReceived",
+          name: "contracts::CrossChainCrowdfundL2::CrossChainCrowdfundL2::StrkCampaignCreated",
           kind: "struct",
           members: [
             {
-              name: "l1_address",
-              type: "core::felt252",
+              name: "campaign_id",
+              type: "core::integer::u256",
               kind: "key",
             },
             {
-              name: "value",
-              type: "core::felt252",
-              kind: "data",
-            },
-          ],
-        },
-        {
-          type: "event",
-          name: "contracts::CrossChainCrowdfundL2::CrossChainCrowdfundL2::StructReceived",
-          kind: "struct",
-          members: [
-            {
-              name: "l1_address",
-              type: "core::felt252",
-              kind: "key",
-            },
-            {
-              name: "data_a",
-              type: "core::felt252",
+              name: "owner",
+              type: "core::starknet::contract_address::ContractAddress",
               kind: "data",
             },
             {
-              name: "data_b",
-              type: "core::felt252",
+              name: "target_amount",
+              type: "core::integer::u256",
+              kind: "data",
+            },
+            {
+              name: "deadline",
+              type: "core::integer::u256",
+              kind: "data",
+            },
+            {
+              name: "data_cid",
+              type: "core::byte_array::ByteArray",
               kind: "data",
             },
           ],
@@ -326,13 +673,8 @@ const deployedContracts = {
               kind: "flat",
             },
             {
-              name: "ValueReceivedFromL1",
-              type: "contracts::CrossChainCrowdfundL2::CrossChainCrowdfundL2::ValueReceived",
-              kind: "nested",
-            },
-            {
-              name: "StructReceivedFromL1",
-              type: "contracts::CrossChainCrowdfundL2::CrossChainCrowdfundL2::StructReceived",
+              name: "StrkCampaignCreated",
+              type: "contracts::CrossChainCrowdfundL2::CrossChainCrowdfundL2::StrkCampaignCreated",
               kind: "nested",
             },
           ],
