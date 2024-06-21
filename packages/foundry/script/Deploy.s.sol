@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import {CrossChainCrowdfundL1} from "../contracts/CrossChainCrowdfundL1.sol";
 import "./DeployHelpers.s.sol";
 import {IStarknetMessaging} from "@starknet/IStarknetMessaging.sol";
+import {MockUSDT} from "../contracts/MockUSDT.sol";
 
 contract DeployScript is ScaffoldETHDeploy {
     error InvalidPrivateKey(string);
@@ -17,8 +18,11 @@ contract DeployScript is ScaffoldETHDeploy {
         }
         vm.startBroadcast(deployerPrivateKey);
         IStarknetMessaging starknetMessaging = _starknetMessaging(); // read only once
+
+        MockUSDT mockUSDT = new MockUSDT(vm.addr(deployerPrivateKey));
         CrossChainCrowdfundL1 l1MessageContract = new CrossChainCrowdfundL1(
-            address(starknetMessaging)
+            address(starknetMessaging),
+            address(mockUSDT)
         );
         console.logString(
             string.concat(
