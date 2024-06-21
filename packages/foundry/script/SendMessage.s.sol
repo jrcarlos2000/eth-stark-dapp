@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "forge-std/Script.sol";
 
 import {CrossChainCrowdfundL1} from "../contracts/CrossChainCrowdfundL1.sol";
+import {MockUSDT} from "../contracts/MockUSDT.sol";
 
 /**
  * @notice A simple script to send a message to Starknet.
@@ -25,12 +26,19 @@ contract Value is Script {
     function run() public {
         vm.startBroadcast(_privateKey);
 
-        // // Remember that there is a cost of at least 20k wei to send a message.
-        // // Let's send 30k here to ensure that we pay enough for our payload serialization.
-        // CrossChainCrowdfundL1(payable(_contractMsgAddress)).createCampaign{
-        //     value: 50000
-        // }(1, 100000, address(1), 10000, "dataCid");
+        CrossChainCrowdfundL1 l1MessageContract = CrossChainCrowdfundL1(
+            0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0
+        );
+        // MockUSDT mockUSDT = MockUSDT(
+        //     0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+        // );
 
+        l1MessageContract.createCampaign(1000 * 10 ** 18, 10000, "dataCid");
+        // address recipient = 0x78662e7352d062084b0010068b99288486c2d8b914f6e2a55ce945f8792c8b1
+        l1MessageContract.campaignOwnerWithdraw{value: 50_000}(
+            1,
+            0x78662e7352d062084b0010068b99288486c2d8b914f6e2a55ce945f8792c8b1
+        );
         vm.stopBroadcast();
     }
 }

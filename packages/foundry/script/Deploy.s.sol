@@ -30,9 +30,15 @@ contract DeployScript is ScaffoldETHDeploy {
                 vm.toString(address(l1MessageContract))
             )
         );
+        console.logString(
+            string.concat(
+                "MockUSDT deployed at: ",
+                vm.toString(address(mockUSDT))
+            )
+        );
 
         // SETUP L2 CONTRACT ADDRESS
-        uint256 l2ContractAddress = 0x02dd669adaa6bbdd665a351c04a137ee6a7fa3bb3204f84037fcf8d933c387cc;
+        uint256 l2ContractAddress = 0x03024f570ed19afa1fd957202e43b5af5bdee08e626f300b8f61fa623805e21f;
         l1MessageContract.setUpTargetContract(l2ContractAddress);
         vm.stopBroadcast();
 
