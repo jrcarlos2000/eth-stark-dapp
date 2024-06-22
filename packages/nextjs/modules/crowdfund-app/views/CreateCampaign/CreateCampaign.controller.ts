@@ -47,7 +47,7 @@ export function useCreateCampaignController(props: CreateCampaignProps) {
     return writeContractEth({
       functionName: "createCampaign",
       args: [BigInt(targetAmount), BigInt(duration), dataCid.toString()],
-    }).then(() => setIsCreateCampaignLoading(false));
+    }).finally(() => setIsCreateCampaignLoading(false));
   };
 
   // state updater

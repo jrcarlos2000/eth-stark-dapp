@@ -127,7 +127,7 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     //   setIsDepositLoading(false);
     // }
     setIsDepositLoading(true);
-    return approveAndDepositToStark().then(() => setIsDepositLoading(false));
+    return approveAndDepositToStark().finally(() => setIsDepositLoading(false));
   };
 
   // withdraw
