@@ -7,7 +7,7 @@ const deployedContracts = {
   devnet: {
     MockUsdt: {
       address:
-        "0x0768eb6034d1f603be65380b8e477b82ed99acf99d81decbba86693f505655a2",
+        "0x07d1fe11539b6c1e16ce08de913ed95acfcd2ae33ac46fc3a2db5dba7cf1dffe",
       abi: [
         {
           type: "impl",
@@ -399,7 +399,7 @@ const deployedContracts = {
     },
     CrossChainCrowdfundL2: {
       address:
-        "0x03024f570ed19afa1fd957202e43b5af5bdee08e626f300b8f61fa623805e21f",
+        "0x04d9081b5685e8cd58d9d74fcab9b2fdf95ab7974aacd6c4428906ce4b85fef2",
       abi: [
         {
           type: "impl",
@@ -518,6 +518,22 @@ const deployedContracts = {
               outputs: [
                 {
                   type: "(core::integer::u256, core::integer::u256, core::integer::u256, core::byte_array::ByteArray)",
+                },
+              ],
+              state_mutability: "view",
+            },
+            {
+              type: "function",
+              name: "get_eth_campaign",
+              inputs: [
+                {
+                  name: "campaign_id",
+                  type: "core::integer::u256",
+                },
+              ],
+              outputs: [
+                {
+                  type: "core::integer::u256",
                 },
               ],
               state_mutability: "view",
