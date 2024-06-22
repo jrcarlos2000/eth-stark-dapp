@@ -10,16 +10,30 @@ const CampaignDetailsContext = createContext<
 
 // implement UI here
 function CampaignDetailsView(props: CampaignDetailProps) {
-  const { campaignDetailIsLoading, campaignDetailData } = useContext(
-    CampaignDetailsContext
-  )!;
+  const {
+    isPageLoading,
+    campaignDetailData,
+    handleDepositFunds,
+    setDepositInput,
+    depositInput,
+    isDepositLoading,
+  } = useContext(CampaignDetailsContext)!;
 
-  if (campaignDetailIsLoading) return <>loading...</>;
+  if (isPageLoading || isDepositLoading) return <>loading...</>;
 
   return (
     <div>
       <h1>Campaign detail</h1>
       <div>{JSON.stringify(campaignDetailData, null, "\t")}</div>
+      <input
+        type="number"
+        placeholder="deposit USDT"
+        value={depositInput}
+        onChange={(e) => setDepositInput(parseInt(e.target.value))}
+      />
+      <button className="btn" onClick={() => handleDepositFunds({})}>
+        deposit from stark to eth
+      </button>
     </div>
   );
 }
