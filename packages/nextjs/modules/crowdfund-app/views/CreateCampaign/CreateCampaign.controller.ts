@@ -5,9 +5,13 @@ import {
 } from "~~/hooks/scaffold-eth";
 import { useState } from "react";
 import { useIPFS } from "../../services/ipfs";
+import { useRouter } from "next/navigation";
+import { useAccount as useEthAccount } from "wagmi";
+import { fromHex } from "viem";
 
 // implement controller here
 export function useCreateCampaignController(props: CreateCampaignProps) {
+  const router = useRouter();
   const { writeContractAsync: writeContractEth } = useScaffoldWriteContract(
     "CrossChainCrowdfundL1"
   );
@@ -17,6 +21,7 @@ export function useCreateCampaignController(props: CreateCampaignProps) {
     durationInSeconds: 0,
     targetAmountInUSDT: 0,
   });
+  const { address } = useEthAccount();
   const ipfsClient = useIPFS();
 
   // watch for successful creations
@@ -24,8 +29,11 @@ export function useCreateCampaignController(props: CreateCampaignProps) {
     contractName: "CrossChainCrowdfundL1",
     eventName: "EthCampaignCreated",
     onLogs: (logs) => {
-      // DEBUG
-      console.log("CAMPAIGN CREATION", { creationAddress: logs[0].address });
+      const { campaignId, owner } = logs[0].args;
+      if (fromHex(address!, "bigint") === owner) {
+        setIsCreateCampaignLoading(false);
+        router.push(`/crowdfund-app/detail/${Number(campaignId)}`);
+      }
     },
   });
 
@@ -47,7 +55,7 @@ export function useCreateCampaignController(props: CreateCampaignProps) {
     return writeContractEth({
       functionName: "createCampaign",
       args: [BigInt(targetAmount), BigInt(duration), dataCid.toString()],
-    }).finally(() => setIsCreateCampaignLoading(false));
+    }).catch(() => setIsCreateCampaignLoading(false));
   };
 
   // state updater

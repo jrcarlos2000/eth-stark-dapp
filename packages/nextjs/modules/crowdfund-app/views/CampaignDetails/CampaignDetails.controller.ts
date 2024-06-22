@@ -123,8 +123,6 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   // withdraw
   const { writeContractAsync: writeToCrowdfundEth } =
     useScaffoldWriteEthContract("CrossChainCrowdfundL1");
-  // const l1ContractInfo = useDeployedContractInfo("CrossChainCrowdfundL1");
-  // const { writeContractAsync: writeToCrowdfundEth } = useWriteContract();
   const [isLoadingWithdraw, setIsLoadingWithdraw] = useState(false);
 
   // NOTE: currently will withdraw to connected starknet wallet, can improve by adding modal
@@ -133,8 +131,6 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
 
     setIsLoadingWithdraw(true);
     return writeToCrowdfundEth({
-      // abi: l1ContractInfo!.data!.abi,
-      // address: l1ContractInfo!.data!.address,
       functionName: "campaignOwnerWithdraw",
       value: parseEther("0.0001"),
       args: [
@@ -155,7 +151,6 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     crowdfundStarkContractInfo.isLoading ||
     isLoadingWithdraw ||
     raisedAmountStarkLoading;
-  // l1ContractInfo.isLoading;
 
   const isGoal = (() => {
     const totalRaisedAmount = campaignDetailData?.raisedAmount || 0;
