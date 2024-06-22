@@ -10,8 +10,8 @@ import { useScaffoldReadContract as useScaffoldReadStarkContract } from "~~/hook
 import { useIPFS } from "../../services/ipfs";
 import { useQuery } from "@tanstack/react-query";
 import {
-  createContractCall,
-  useScaffoldMultiWriteContract,
+  createContractCall as createStarkContractCall,
+  useScaffoldMultiWriteContract as useScaffoldMultiWriteStarkContract,
 } from "~~/hooks/scaffold-stark/useScaffoldMultiWriteContract";
 
 export function useCampaignDetailsController(props: CampaignDetailProps) {
@@ -76,16 +76,17 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   //     ],
   //   });
   const { writeAsync: approveAndDepositToStark } =
-    useScaffoldMultiWriteContract({
+    useScaffoldMultiWriteStarkContract({
       calls: [
-        createContractCall("MockUsdt", "approve", [
+        createStarkContractCall("MockUsdt", "approve", [
           crowdfundStarkContractInfo.data?.address,
           BigInt((depositInput || 0) * 10 ** 18),
         ]),
-        createContractCall("CrossChainCrowdfundL2", "deposit_to_eth_campaign", [
-          parseInt(props.id),
-          BigInt((depositInput || 0) * 10 ** 18),
-        ]),
+        createStarkContractCall(
+          "CrossChainCrowdfundL2",
+          "deposit_to_eth_campaign",
+          [parseInt(props.id), BigInt((depositInput || 0) * 10 ** 18)]
+        ),
       ],
     });
   // const { writeAsync: writeUSDTApprovalForStark } =
