@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { useCampaignDetailsController } from "./CampaignDetails.controller";
 import { CampaignDetailProps } from "./CampaignDetails.types";
+import { useCampaignDetailsController } from "./CampaignDetails.controller";
 
 const CampaignDetailsContext = createContext<
   ReturnType<typeof useCampaignDetailsController> | undefined
@@ -10,7 +10,18 @@ const CampaignDetailsContext = createContext<
 
 // implement UI here
 function CampaignDetailsView(props: CampaignDetailProps) {
-  return <>campaign details: {props.id}</>;
+  const { campaignDetailIsLoading, campaignDetailData } = useContext(
+    CampaignDetailsContext
+  )!;
+
+  if (campaignDetailIsLoading) return <>loading...</>;
+
+  return (
+    <div>
+      <h1>Campaign detail</h1>
+      <div>{JSON.stringify(campaignDetailData, null, "\t")}</div>
+    </div>
+  );
 }
 
 export function CampaignDetails(props: CampaignDetailProps) {
