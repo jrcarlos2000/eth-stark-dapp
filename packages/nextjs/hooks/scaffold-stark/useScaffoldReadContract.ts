@@ -12,6 +12,7 @@ import {
 export const useScaffoldReadContract = <
   TContractName extends ContractName,
   TFunctionName extends ExtractAbiFunctionNamesScaffold<
+    // @ts-ignore
     ContractAbi<TContractName>,
     "view"
   >,
@@ -33,10 +34,12 @@ export const useScaffoldReadContract = <
     blockIdentifier: "pending" as BlockNumber,
     ...(readConfig as any),
   }) as Omit<ReturnType<typeof useContractRead>, "data" | "refetch"> & {
+    // @ts-ignore
     data: AbiFunctionOutputs<ContractAbi, TFunctionName> | undefined;
     refetch: (options?: {
       throwOnError: boolean;
       cancelRefetch: boolean;
+      // @ts-ignore
     }) => Promise<AbiFunctionOutputs<ContractAbi, TFunctionName>>;
   };
 };

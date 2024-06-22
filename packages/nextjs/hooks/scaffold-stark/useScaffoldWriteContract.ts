@@ -22,6 +22,7 @@ type UpdatedArgs = Parameters<
 export const useScaffoldWriteContract = <
   TContractName extends ContractName,
   TFunctionName extends ExtractAbiFunctionNamesScaffold<
+    // @ts-ignore
     ContractAbi<TContractName>,
     "external"
   >,
@@ -39,10 +40,11 @@ export const useScaffoldWriteContract = <
   const abiFunction = useMemo(
     () =>
       getFunctionsByStateMutability(
+        // @ts-ignore
         deployedContractData?.abi || [],
-        "external",
+        "external"
       ).find((fn) => fn.name === functionName),
-    [deployedContractData?.abi, functionName],
+    [deployedContractData?.abi, functionName]
   );
 
   const parsedParams = useMemo(() => {
@@ -74,7 +76,7 @@ export const useScaffoldWriteContract = <
   } & UpdatedArgs = {}) => {
     if (!deployedContractData) {
       console.error(
-        "Target Contract is not deployed, did you forget to run `yarn deploy`?",
+        "Target Contract is not deployed, did you forget to run `yarn deploy`?"
       );
       return;
     }
@@ -106,7 +108,7 @@ export const useScaffoldWriteContract = <
           wagmiContractWrite.writeAsync({
             calls: newCalls as any[],
             options: newOptions ?? options,
-          }),
+          })
         );
       } catch (e: any) {
         throw e;

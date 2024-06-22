@@ -37,7 +37,7 @@ export const WriteOnlyFunctionForm = ({
   inheritedFrom,
 }: WriteOnlyFunctionFormProps) => {
   const [form, setForm] = useState<Record<string, any>>(() =>
-    getInitialFormState(abiFunction)
+    getInitialFormState(abiFunction as any)
   );
   const [txValue, setTxValue] = useState<string | bigint>("");
   const { chain } = useAccount();
@@ -55,7 +55,7 @@ export const WriteOnlyFunctionForm = ({
             address: contractAddress,
             functionName: abiFunction.name,
             abi: abi,
-            args: getParsedContractFunctionArgs(form),
+            args: getParsedContractFunctionArgs(form, false),
             value: BigInt(txValue),
           });
         await writeTxn(makeWriteWithParams);
@@ -79,7 +79,7 @@ export const WriteOnlyFunctionForm = ({
   }, [txResult]);
 
   // TODO use `useMemo` to optimize also update in ReadOnlyFunctionForm
-  const transformedFunction = transformAbiFunction(abiFunction);
+  const transformedFunction = transformAbiFunction(abiFunction as any);
   const inputs = transformedFunction.inputs.map((input, inputIndex) => {
     const key = getFunctionInputKey(abiFunction.name, input, inputIndex);
     return (

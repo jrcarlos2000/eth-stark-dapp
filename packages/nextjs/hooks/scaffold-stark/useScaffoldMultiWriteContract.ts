@@ -19,6 +19,7 @@ import { useTransactor } from "./useTransactor";
 export const useScaffoldMultiWriteContract = <
   TContractName extends ContractName,
   TFunctionName extends ExtractAbiFunctionNamesScaffold<
+    // @ts-ignore
     ContractAbi<TContractName>,
     "external"
   >,
@@ -44,8 +45,9 @@ export const useScaffoldMultiWriteContract = <
         ] as Contract<TContractName>;
 
         const abiFunction = getFunctionsByStateMutability(
+          // @ts-ignore
           contract?.abi || [],
-          "external",
+          "external"
         ).find((fn) => fn.name === functionName);
 
         return {
@@ -102,13 +104,14 @@ export const useScaffoldMultiWriteContract = <
 export function createContractCall<
   TContractName extends ContractName,
   TFunctionName extends ExtractAbiFunctionNamesScaffold<
+    // @ts-ignore
     ContractAbi<TContractName>,
     "external"
   >,
 >(
   contractName: TContractName,
   functionName: TFunctionName,
-  args: UseScaffoldArgsParam<TContractName, TFunctionName>["args"],
+  args: UseScaffoldArgsParam<TContractName, TFunctionName>["args"]
 ) {
   return { contractName, functionName, args };
 }
