@@ -1,7 +1,6 @@
-import { useWriteContract } from "wagmi";
 import { CampaignData, CreateCampaignProps } from "./CreateCampaign.types";
 import {
-  useDeployedContractInfo,
+  useScaffoldWatchContractEvent,
   useScaffoldWriteContract,
 } from "~~/hooks/scaffold-eth";
 import { useState } from "react";
@@ -19,6 +18,16 @@ export function useCreateCampaignController(props: CreateCampaignProps) {
     targetAmountInUSDT: 0,
   });
   const ipfsClient = useIPFS();
+
+  // watch for successful creations
+  useScaffoldWatchContractEvent({
+    contractName: "CrossChainCrowdfundL1",
+    eventName: "EthCampaignCreated",
+    onLogs: (logs) => {
+      // DEBUG
+      console.log("CAMPAIGN CREATION", { creationAddress: logs[0].address });
+    },
+  });
 
   // create campaign
   const handleCreateCampaign = async ({
