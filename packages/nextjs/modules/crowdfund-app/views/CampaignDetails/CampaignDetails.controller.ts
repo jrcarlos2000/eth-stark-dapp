@@ -9,6 +9,10 @@ import { useDeployedContractInfo as useDeployedStarkContractInfo } from "~~/hook
 import { useScaffoldReadContract as useScaffoldReadStarkContract } from "~~/hooks/scaffold-stark/useScaffoldReadContract";
 import { useIPFS } from "../../services/ipfs";
 import { useQuery } from "@tanstack/react-query";
+import {
+  createContractCall,
+  useScaffoldMultiWriteContract,
+} from "~~/hooks/scaffold-stark/useScaffoldMultiWriteContract";
 
 export function useCampaignDetailsController(props: CampaignDetailProps) {
   const ipfsClient = useIPFS();
@@ -62,26 +66,39 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   const crowdfundStarkContractInfo = useDeployedStarkContractInfo(
     "CrossChainCrowdfundL2"
   );
-  const { data: allowanceData, isLoading: isAllowanceLoading } =
-    useScaffoldReadStarkContract({
-      contractName: "MockUsdt",
-      functionName: "allowance",
-      args: [
-        connectedStarkAddress as string,
-        crowdfundStarkContractInfo.data?.address as string,
+  // const { data: allowanceData, isLoading: isAllowanceLoading } =
+  //   useScaffoldReadStarkContract({
+  //     contractName: "MockUsdt",
+  //     functionName: "allowance",
+  //     args: [
+  //       connectedStarkAddress as string,
+  //       crowdfundStarkContractInfo.data?.address as string,
+  //     ],
+  //   });
+  const { writeAsync: approveAndDepositToStark } =
+    useScaffoldMultiWriteContract({
+      calls: [
+        createContractCall("MockUsdt", "approve", [
+          crowdfundStarkContractInfo.data?.address,
+          BigInt((depositInput || 0) * 10 ** 18),
+        ]),
+        createContractCall("CrossChainCrowdfundL2", "deposit_to_eth_campaign", [
+          parseInt(props.id),
+          BigInt((depositInput || 0) * 10 ** 18),
+        ]),
       ],
     });
-  const { writeAsync: writeUSDTApprovalForStark } =
-    useScaffoldWriteStarkContract({
-      contractName: "MockUsdt",
-      functionName: "approve",
-      args: [crowdfundStarkContractInfo.data?.address, 0],
-    });
-  const { writeAsync: writeDepositToContract } = useScaffoldWriteStarkContract({
-    contractName: "CrossChainCrowdfundL2",
-    functionName: "deposit_to_eth_campaign",
-    args: [BigInt(parseInt(props.id)), depositInput],
-  });
+  // const { writeAsync: writeUSDTApprovalForStark } =
+  //   useScaffoldWriteStarkContract({
+  //     contractName: "MockUsdt",
+  //     functionName: "approve",
+  //     args: [crowdfundStarkContractInfo.data?.address, 0],
+  //   });
+  // const { writeAsync: writeDepositToContract } = useScaffoldWriteStarkContract({
+  //   contractName: "CrossChainCrowdfundL2",
+  //   functionName: "deposit_to_eth_campaign",
+  //   args: [BigInt(parseInt(props.id)), BigInt(depositInput || 0)],
+  // });
   const [isDepositLoading, setIsDepositLoading] = useState(false);
 
   // deposit funds
@@ -91,18 +108,26 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     to?: ContractType;
   }) => {
     setIsDepositLoading(true);
-    try {
-      if (allowanceData ?? 0 < depositInput)
-        await writeUSDTApprovalForStark({
-          args: [crowdfundStarkContractInfo.data?.address, depositInput],
-        });
+    // try {
+    //   console.log({ allowanceData });
+    //   if (Number(allowanceData || 0) < depositInput)
+    //     await writeUSDTApprovalForStark({
+    //       args: [
+    //         crowdfundStarkContractInfo.data?.address,
 
-      return writeDepositToContract();
-    } catch (e: any) {
-      console.error(e.message);
-    } finally {
-      setIsDepositLoading(false);
-    }
+    //         // we do some offser
+    //         BigInt(depositInput + 50),
+    //       ],
+    //     });
+
+    //   return writeDepositToContract();
+    // } catch (e: any) {
+    //   console.error(e.message);
+    // } finally {
+    //   setIsDepositLoading(false);
+    // }
+    setIsDepositLoading(true);
+    return approveAndDepositToStark().then(() => setIsDepositLoading(false));
   };
 
   // withdraw
@@ -113,7 +138,6 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   const isPageLoading =
     campaignDetailIsLoading ||
     metadataQuery.isLoading ||
-    isAllowanceLoading ||
     crowdfundStarkContractInfo.isLoading;
 
   return {
