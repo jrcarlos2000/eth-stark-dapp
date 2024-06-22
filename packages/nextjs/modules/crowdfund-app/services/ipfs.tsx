@@ -21,13 +21,16 @@ const getWithClient =
       const content = new TextDecoder().decode(file);
       // Remove any leading/trailing whitespace
       const trimmedContent = content.trim();
+
       // Find the start and end index of the JSON object
       const startIndex = trimmedContent.indexOf("{");
       const endIndex = trimmedContent.lastIndexOf("}") + 1;
+
       // Extract the JSON object string
       const jsonObjectString = trimmedContent.slice(startIndex, endIndex);
       try {
-        const jsonObject = JSON.parse(jsonObjectString);
+        // clean up escape chars
+        const jsonObject = JSON.parse(jsonObjectString.replace(/\\"/g, '"'));
         return jsonObject;
       } catch (error) {
         console.log("Error parsing JSON:", error);
