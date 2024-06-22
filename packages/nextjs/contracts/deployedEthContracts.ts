@@ -852,6 +852,686 @@ const deployedContracts = {
           type: "constructor",
         },
         {
+          type: "function",
+          name: "SET_SUCCESSFUL_CAMPAIGN",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "_starknetMessaging",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "contract IStarknetMessaging",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "campaignOwnerWithdraw",
+          inputs: [
+            {
+              name: "campaignId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "l2recipient",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "payable",
+        },
+        {
+          type: "function",
+          name: "campaigns",
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "targetAmount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "raisedAmount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "duration",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "startTime",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "dataCid",
+              type: "string",
+              internalType: "string",
+            },
+            {
+              name: "owner",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "createCampaign",
+          inputs: [
+            {
+              name: "targetAmount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "duration",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "dataCid",
+              type: "string",
+              internalType: "string",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "owner",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "renounceOwnership",
+          inputs: [],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "setUpTargetContract",
+          inputs: [
+            {
+              name: "l2ContractAddress",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "strkCampaigns",
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "raisedAmount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "transferOwnership",
+          inputs: [
+            {
+              name: "newOwner",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "withdraw",
+          inputs: [
+            {
+              name: "campaignId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "event",
+          name: "EthCampaignCreated",
+          inputs: [
+            {
+              name: "campaignId",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "owner",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "targetAmount",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "deadline",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "dataCid",
+              type: "string",
+              indexed: false,
+              internalType: "string",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "OwnershipTransferred",
+          inputs: [
+            {
+              name: "previousOwner",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "newOwner",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "OwnableInvalidOwner",
+          inputs: [
+            {
+              name: "owner",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "OwnableUnauthorizedAccount",
+          inputs: [
+            {
+              name: "account",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+      ],
+      inheritedFunctions: {
+        owner: "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+        renounceOwnership:
+          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+        transferOwnership:
+          "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+      },
+    },
+  },
+  11155111: {
+    MockUSDT: {
+      address: "0xf838912840045791cdc07852d6e12c8536327f4a",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "recipient",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "allowance",
+          inputs: [
+            {
+              name: "owner",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "spender",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "approve",
+          inputs: [
+            {
+              name: "spender",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "value",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "balanceOf",
+          inputs: [
+            {
+              name: "account",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "decimals",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint8",
+              internalType: "uint8",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "faucet",
+          inputs: [
+            {
+              name: "recipient",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "amount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "name",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "string",
+              internalType: "string",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "symbol",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "string",
+              internalType: "string",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "totalSupply",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "transfer",
+          inputs: [
+            {
+              name: "to",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "value",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "transferFrom",
+          inputs: [
+            {
+              name: "from",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "to",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "value",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bool",
+              internalType: "bool",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "event",
+          name: "Approval",
+          inputs: [
+            {
+              name: "owner",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "spender",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "value",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "Transfer",
+          inputs: [
+            {
+              name: "from",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "to",
+              type: "address",
+              indexed: true,
+              internalType: "address",
+            },
+            {
+              name: "value",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "error",
+          name: "ERC20InsufficientAllowance",
+          inputs: [
+            {
+              name: "spender",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "allowance",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "needed",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC20InsufficientBalance",
+          inputs: [
+            {
+              name: "sender",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "balance",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "needed",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC20InvalidApprover",
+          inputs: [
+            {
+              name: "approver",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC20InvalidReceiver",
+          inputs: [
+            {
+              name: "receiver",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC20InvalidSender",
+          inputs: [
+            {
+              name: "sender",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+        {
+          type: "error",
+          name: "ERC20InvalidSpender",
+          inputs: [
+            {
+              name: "spender",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+        },
+      ],
+      inheritedFunctions: {
+        allowance: "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+        approve: "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+        balanceOf: "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+        decimals: "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+        name: "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+        symbol: "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+        totalSupply:
+          "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+        transfer: "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+        transferFrom:
+          "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+      },
+    },
+    CrossChainCrowdfundL1: {
+      address: "0x11bf8e7ec2f4a92aa234084bc25049fb243e6051",
+      abi: [
+        {
+          type: "constructor",
+          inputs: [
+            {
+              name: "starknetMessaging",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "baseToken",
+              type: "address",
+              internalType: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "SET_SUCCESSFUL_CAMPAIGN",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "_starknetMessaging",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "contract IStarknetMessaging",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "campaignOwnerWithdraw",
           inputs: [
             {
               internalType: "address",

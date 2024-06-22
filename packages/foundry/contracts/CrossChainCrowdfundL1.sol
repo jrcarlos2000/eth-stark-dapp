@@ -10,7 +10,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 /// @dev when claiming from a different chain, add a cooldown time, like 15 mins before.
 
 contract CrossChainCrowdfundL1 is Ownable {
-    IStarknetMessaging internal _starknetMessaging;
+    IStarknetMessaging public _starknetMessaging;
     uint256 internal _l2ContractAddress;
     address internal _baseToken;
 
