@@ -1,10 +1,12 @@
-import { useScaffoldReadContract as useScaffoldReadEthContract } from "~~/hooks/scaffold-eth";
+import {
+  useScaffoldReadContract as useScaffoldReadEthContract,
+  useScaffoldWriteContract as useScaffoldWriteEthContract,
+} from "~~/hooks/scaffold-eth";
 import { CampaignDetailProps } from "./CampaignDetails.types";
 import { useMemo, useState } from "react";
 import { useAccount as useEthAccount } from "wagmi";
 import { useAccount as useStarkAccount } from "@starknet-react/core";
 import { ContractType } from "~~/types/aggregations";
-import { useScaffoldWriteContract as useScaffoldWriteStarkContract } from "~~/hooks/scaffold-stark/useScaffoldWriteContract";
 import { useDeployedContractInfo as useDeployedStarkContractInfo } from "~~/hooks/scaffold-stark";
 import { useScaffoldReadContract as useScaffoldReadStarkContract } from "~~/hooks/scaffold-stark/useScaffoldReadContract";
 import { useIPFS } from "../../services/ipfs";
@@ -13,18 +15,32 @@ import {
   createContractCall as createStarkContractCall,
   useScaffoldMultiWriteContract as useScaffoldMultiWriteStarkContract,
 } from "~~/hooks/scaffold-stark/useScaffoldMultiWriteContract";
+import { Address, fromHex, parseEther, parseUnits } from "viem";
 
 export function useCampaignDetailsController(props: CampaignDetailProps) {
   const ipfsClient = useIPFS();
 
   // fetch the contract details from ethereum
   // TODO: fetch contracts from starknet
-  const { data: campaignDetailDataRaw, isLoading: campaignDetailIsLoading } =
-    useScaffoldReadEthContract({
-      contractName: "CrossChainCrowdfundL1",
-      functionName: "campaigns",
-      args: [BigInt(parseInt(props.id))],
-    });
+  const {
+    data: campaignDetailDataEthRaw,
+    isLoading: campaignDetailIsLoading,
+    refetch: refetchEthData,
+  } = useScaffoldReadEthContract({
+    contractName: "CrossChainCrowdfundL1",
+    functionName: "campaigns",
+    args: [BigInt(parseInt(props.id))],
+  });
+
+  const {
+    data: raisedAmountStark,
+    isLoading: raisedAmountStarkLoading,
+    refetch: refetchStarkData,
+  } = useScaffoldReadStarkContract({
+    contractName: "CrossChainCrowdfundL2",
+    functionName: "get_eth_campaign",
+    args: [parseInt(props.id)],
+  });
 
   // get connected address
   const { address: connectedEthAddress } = useEthAccount();
@@ -34,20 +50,27 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
 
   // post process raw data
   const campaignDetailData = useMemo(() => {
-    if (!campaignDetailDataRaw) return undefined;
+    if (!campaignDetailDataEthRaw) return undefined;
 
-    const [targetAmount, raisedAmount, duration, startTime, dataCid, address] =
-      campaignDetailDataRaw;
+    const [
+      targetAmount,
+      raisedAmountEth,
+      duration,
+      startTime,
+      dataCid,
+      address,
+    ] = campaignDetailDataEthRaw;
 
     return {
       targetAmount: Number(targetAmount),
-      raisedAmount: Number(raisedAmount),
+      raisedAmount:
+        Number(raisedAmountEth) + Number(raisedAmountStark || 0) / 10 ** 18,
       duration: Number(duration),
       startTime: Number(startTime),
       dataCid,
       address,
     };
-  }, [campaignDetailDataRaw]);
+  }, [campaignDetailDataEthRaw, raisedAmountStark]);
 
   // metadata
   const metadataQuery = useQuery({
@@ -66,15 +89,6 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   const crowdfundStarkContractInfo = useDeployedStarkContractInfo(
     "CrossChainCrowdfundL2"
   );
-  // const { data: allowanceData, isLoading: isAllowanceLoading } =
-  //   useScaffoldReadStarkContract({
-  //     contractName: "MockUsdt",
-  //     functionName: "allowance",
-  //     args: [
-  //       connectedStarkAddress as string,
-  //       crowdfundStarkContractInfo.data?.address as string,
-  //     ],
-  //   });
   const { writeAsync: approveAndDepositToStark } =
     useScaffoldMultiWriteStarkContract({
       calls: [
@@ -89,17 +103,6 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
         ),
       ],
     });
-  // const { writeAsync: writeUSDTApprovalForStark } =
-  //   useScaffoldWriteStarkContract({
-  //     contractName: "MockUsdt",
-  //     functionName: "approve",
-  //     args: [crowdfundStarkContractInfo.data?.address, 0],
-  //   });
-  // const { writeAsync: writeDepositToContract } = useScaffoldWriteStarkContract({
-  //   contractName: "CrossChainCrowdfundL2",
-  //   functionName: "deposit_to_eth_campaign",
-  //   args: [BigInt(parseInt(props.id)), BigInt(depositInput || 0)],
-  // });
   const [isDepositLoading, setIsDepositLoading] = useState(false);
 
   // deposit funds
@@ -109,37 +112,56 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     to?: ContractType;
   }) => {
     setIsDepositLoading(true);
-    // try {
-    //   console.log({ allowanceData });
-    //   if (Number(allowanceData || 0) < depositInput)
-    //     await writeUSDTApprovalForStark({
-    //       args: [
-    //         crowdfundStarkContractInfo.data?.address,
-
-    //         // we do some offser
-    //         BigInt(depositInput + 50),
-    //       ],
-    //     });
-
-    //   return writeDepositToContract();
-    // } catch (e: any) {
-    //   console.error(e.message);
-    // } finally {
-    //   setIsDepositLoading(false);
-    // }
-    setIsDepositLoading(true);
-    return approveAndDepositToStark().finally(() => setIsDepositLoading(false));
+    return approveAndDepositToStark()
+      .then(() => {
+        refetchEthData();
+        refetchStarkData();
+      })
+      .finally(() => setIsDepositLoading(false));
   };
 
   // withdraw
+  const { writeContractAsync: writeToCrowdfundEth } =
+    useScaffoldWriteEthContract("CrossChainCrowdfundL1");
+  // const l1ContractInfo = useDeployedContractInfo("CrossChainCrowdfundL1");
+  // const { writeContractAsync: writeToCrowdfundEth } = useWriteContract();
+  const [isLoadingWithdraw, setIsLoadingWithdraw] = useState(false);
+
+  // NOTE: currently will withdraw to connected starknet wallet, can improve by adding modal
   const handleOwnerWithdraw = () => {
     if (!isCampaignOwner) return;
+
+    setIsLoadingWithdraw(true);
+    return writeToCrowdfundEth({
+      // abi: l1ContractInfo!.data!.abi,
+      // address: l1ContractInfo!.data!.address,
+      functionName: "campaignOwnerWithdraw",
+      value: parseEther("0.0001"),
+      args: [
+        BigInt(parseInt(props.id)),
+        fromHex(connectedStarkAddress! as unknown as Address, "bigint"),
+      ],
+    })
+      .then(() => {
+        refetchEthData();
+        refetchStarkData();
+      })
+      .finally(() => setIsLoadingWithdraw(false));
   };
 
   const isPageLoading =
     campaignDetailIsLoading ||
     metadataQuery.isLoading ||
-    crowdfundStarkContractInfo.isLoading;
+    crowdfundStarkContractInfo.isLoading ||
+    isLoadingWithdraw ||
+    raisedAmountStarkLoading;
+  // l1ContractInfo.isLoading;
+
+  const isGoal = (() => {
+    const totalRaisedAmount = campaignDetailData?.raisedAmount || 0;
+    const totalTargetAmount = campaignDetailData?.targetAmount || 999999999999;
+    return totalRaisedAmount >= totalTargetAmount;
+  })();
 
   return {
     campaignDetailData: { ...campaignDetailData, data: metadataQuery.data },
@@ -150,5 +172,7 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     depositInput,
     setDepositInput,
     isPageLoading,
+    isGoal,
+    handleOwnerWithdraw,
   };
 }

@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { TransactionReceipt } from "viem";
-import { CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
-import { ObjectFieldDisplay } from "~~/app/debug/_components/contract";
+import {
+  CheckCircleIcon,
+  DocumentDuplicateIcon,
+} from "@heroicons/react/24/outline";
+import { ObjectFieldDisplay } from "~~/app/debug/_components/eth-contract";
 import { replacer } from "~~/utils/scaffold-eth/common";
 
 export const TxReceipt = ({ txResult }: { txResult: TransactionReceipt }) => {
@@ -41,7 +44,13 @@ export const TxReceipt = ({ txResult }: { txResult: TransactionReceipt }) => {
         <div className="collapse-content overflow-auto bg-secondary rounded-t-none rounded-3xl !pl-0">
           <pre className="text-xs">
             {Object.entries(txResult).map(([k, v]) => (
-              <ObjectFieldDisplay name={k} value={v} size="xs" leftPad={false} key={k} />
+              <ObjectFieldDisplay
+                name={k}
+                value={v}
+                size="xs"
+                leftPad={false}
+                key={k}
+              />
             ))}
           </pre>
         </div>

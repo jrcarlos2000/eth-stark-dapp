@@ -10,7 +10,7 @@ export type ScaffoldStarkConfig = {
 
 // TODO: segregate file name
 const scaffoldStarkConfig = {
-  targetNetworks: [chains.devnet, chains.sepolia],
+  targetNetworks: [chains.sepolia],
   // Only show the Burner Wallet when running on devnet
   onlyLocalBurnerWallet: false,
   rpcProviderUrl: process.env.NEXT_PUBLIC_STARK_PROVIDER_URL || "",

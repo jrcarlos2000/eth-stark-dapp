@@ -17,6 +17,8 @@ function CampaignDetailsView(props: CampaignDetailProps) {
     setDepositInput,
     depositInput,
     isDepositLoading,
+    isCampaignOwner,
+    handleOwnerWithdraw,
   } = useContext(CampaignDetailsContext)!;
 
   if (isPageLoading || isDepositLoading) return <>loading...</>;
@@ -34,6 +36,11 @@ function CampaignDetailsView(props: CampaignDetailProps) {
       <button className="btn" onClick={() => handleDepositFunds({})}>
         deposit from stark to eth
       </button>
+      {isCampaignOwner && (
+        <button className="btn" onClick={handleOwnerWithdraw}>
+          withdraw raised amount
+        </button>
+      )}
     </div>
   );
 }
