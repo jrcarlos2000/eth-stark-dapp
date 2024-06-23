@@ -44,6 +44,7 @@ import {
  */
 export const useScaffoldEventHistory = <
   TContractName extends ContractName,
+  // @ts-ignore
   TEventName extends ExtractAbiEventNames<ContractAbi<TContractName>>,
   TBlockData extends boolean = false,
   TTransactionData extends boolean = false,
@@ -93,7 +94,8 @@ export const useScaffoldEventHistory = <
       }
 
       const event = (deployedContractData.abi as Abi).find(
-        (part) => part.type === "event" && part.name === eventName,
+        (part) => part.type === "event" && part.name === eventName
+        // @ts-ignore
       ) as ExtractAbiEvent<ContractAbi<TContractName>, TEventName>;
 
       const blockNumber = (await publicClient.getBlockLatestAccepted())
@@ -127,13 +129,13 @@ export const useScaffoldEventHistory = <
             transaction:
               transactionData && logs[i].transaction_hash !== null
                 ? await publicClient.getTransactionByHash(
-                    logs[i].transaction_hash,
+                    logs[i].transaction_hash
                   )
                 : null,
             receipt:
               receiptData && logs[i].transaction_hash !== null
                 ? await publicClient.getTransactionReceipt(
-                    logs[i].transaction_hash,
+                    logs[i].transaction_hash
                   )
                 : null,
           });
@@ -195,13 +197,14 @@ export const useScaffoldEventHistory = <
       ? targetNetwork.id !== devnet.id
         ? scaffoldConfig.pollingInterval
         : 4_000
-      : null,
+      : null
   );
 
   const eventHistoryData = useMemo(() => {
     if (deployedContractData) {
       const abiEvent = (deployedContractData.abi as Abi).find(
-        (part) => part.type === "event" && part.name === eventName,
+        (part) => part.type === "event" && part.name === eventName
+        // @ts-ignore
       ) as ExtractAbiEvent<ContractAbi<TContractName>, TEventName>;
 
       return events?.map((event) => addIndexedArgsToEvent(event, abiEvent));
@@ -225,7 +228,7 @@ export const addIndexedArgsToEvent = (event: any, abiEvent: any) => {
     array: string[],
     index: number,
     type: string,
-    isKey: boolean,
+    isKey: boolean
   ) => {
     if (isCairoByteArray(type)) {
       const size = parseInt(array[index], 16); // Number of elements in ByteArray
@@ -243,7 +246,7 @@ export const addIndexedArgsToEvent = (event: any, abiEvent: any) => {
           pending_word: array[index + 1 + size],
           pending_word_len: parseInt(array[1 + (index + 1 + size)], 16),
         },
-        true,
+        true
       );
     } else if (
       isCairoContractAddress(type) ||
@@ -278,17 +281,17 @@ export const addIndexedArgsToEvent = (event: any, abiEvent: any) => {
           event.log.keys,
           keyIndex,
           member.type,
-          true,
+          true
         );
       } else if (member.kind === "data") {
         args[member.name] = parseValue(
           event.log.data,
           dataIndex,
           member.type,
-          false,
+          false
         );
       }
-    },
+    }
   );
 
   return {

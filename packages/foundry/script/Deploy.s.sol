@@ -1,9 +1,10 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {L1MessageContract} from "../contracts/L1MessageContract.sol";
+import {CrossChainCrowdfundL1} from "../contracts/CrossChainCrowdfundL1.sol";
 import "./DeployHelpers.s.sol";
 import {IStarknetMessaging} from "@starknet/IStarknetMessaging.sol";
+import {MockUSDT} from "../contracts/MockUSDT.sol";
 
 contract DeployScript is ScaffoldETHDeploy {
     error InvalidPrivateKey(string);
@@ -17,8 +18,11 @@ contract DeployScript is ScaffoldETHDeploy {
         }
         vm.startBroadcast(deployerPrivateKey);
         IStarknetMessaging starknetMessaging = _starknetMessaging(); // read only once
-        L1MessageContract l1MessageContract = new L1MessageContract(
-            address(starknetMessaging)
+
+        MockUSDT mockUSDT = new MockUSDT(vm.addr(deployerPrivateKey));
+        CrossChainCrowdfundL1 l1MessageContract = new CrossChainCrowdfundL1(
+            address(starknetMessaging),
+            address(mockUSDT)
         );
         console.logString(
             string.concat(
@@ -26,6 +30,16 @@ contract DeployScript is ScaffoldETHDeploy {
                 vm.toString(address(l1MessageContract))
             )
         );
+        console.logString(
+            string.concat(
+                "MockUSDT deployed at: ",
+                vm.toString(address(mockUSDT))
+            )
+        );
+
+        // SETUP L2 CONTRACT ADDRESS
+        uint256 l2ContractAddress = 0x05b324f177894d47b0625e78067d506a7e23d061a8debc944310c9479d4b10aa;
+        l1MessageContract.setUpTargetContract(l2ContractAddress);
         vm.stopBroadcast();
 
         /**

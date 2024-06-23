@@ -74,14 +74,14 @@ export const ScaffoldStarkAppWithProviders = ({
   });
 
   return (
-    <StarknetConfig
-      chains={appChains}
-      provider={provider}
-      connectors={connectors}
-      explorer={starkscan}
-    >
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <StarknetConfig
+        chains={appChains}
+        provider={provider}
+        connectors={connectors}
+        explorer={starkscan}
+      >
+        <WagmiProvider config={wagmiConfig}>
           <RainbowKitProvider
             avatar={BlockieAvatar}
             theme={
@@ -91,8 +91,8 @@ export const ScaffoldStarkAppWithProviders = ({
             <ProgressBar />
             <ScaffoldStarkApp>{children}</ScaffoldStarkApp>
           </RainbowKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </StarknetConfig>
+        </WagmiProvider>
+      </StarknetConfig>
+    </QueryClientProvider>
   );
 };

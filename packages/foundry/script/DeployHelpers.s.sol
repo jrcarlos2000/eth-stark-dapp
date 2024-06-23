@@ -88,8 +88,11 @@ contract ScaffoldETHDeploy is Script {
         if (block.chainid == 31337) {
             starknetMessaging = address(new MockStarknetMessaging());
             _loadMessagingContractOnL2(starknetMessaging);
+        } else if (block.chainid == 1) {
+            // starknetMessaging = 0xE2Bb56ee936fd6433DC0F6e7e3b8365C906AA057; // mainnet TODO
         } else {
-            starknetMessaging = address(new MockStarknetMessaging()); // TODO replace with StarknetMessaging on ethereum and sepolia
+            // sepolia
+            starknetMessaging = 0xE2Bb56ee936fd6433DC0F6e7e3b8365C906AA057;
         }
 
         console.logString(
