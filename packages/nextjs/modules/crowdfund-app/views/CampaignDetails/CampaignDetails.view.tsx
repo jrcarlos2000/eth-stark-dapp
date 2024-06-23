@@ -94,6 +94,9 @@ function CampaignDetailsView(props: CampaignDetailProps) {
         <div className="mt-5 flex w-full">
           <div className="flex-1">
             <h2 className="font-bold">Deposit</h2>
+            <p className="text-sm text-neutral-400">
+              This deposit will be taken from your primary wallet.
+            </p>
             <div className="flex gap-3">
               <div className="flex items-center justify-between input">
                 <input
@@ -118,6 +121,9 @@ function CampaignDetailsView(props: CampaignDetailProps) {
           {/* TODO: add functionality */}
           <div className="flex-1">
             <h2 className="font-bold">Withdraw</h2>
+            <p className="text-sm text-neutral-400">
+              This withdrawal will be saved to your primary wallet.
+            </p>
             <div className="flex gap-3">
               <div className="flex items-center justify-between input">
                 <input
