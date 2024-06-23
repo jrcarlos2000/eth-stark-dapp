@@ -4,6 +4,7 @@ import { ReactNode, createContext, useContext } from "react";
 import { CampaignDetailProps } from "./CampaignDetails.types";
 import { useCampaignDetailsController } from "./CampaignDetails.controller";
 import dayjs from "dayjs";
+import { truncateAddress } from "../../services/utils";
 
 const CampaignDetailsContext = createContext<
   ReturnType<typeof useCampaignDetailsController> | undefined
@@ -24,6 +25,7 @@ function CampaignDetailsView(props: CampaignDetailProps) {
     isDepositLoading,
     isCampaignOwner,
     handleOwnerWithdraw,
+    primaryWallet,
   } = useContext(CampaignDetailsContext)!;
 
   if (isPageLoading)
@@ -103,6 +105,7 @@ function CampaignDetailsView(props: CampaignDetailProps) {
             <p className="text-sm text-neutral-400">
               This deposit will be taken from your primary wallet.
             </p>
+
             <div className="flex gap-3">
               <div className="flex items-center justify-between input">
                 <input
@@ -122,6 +125,14 @@ function CampaignDetailsView(props: CampaignDetailProps) {
                 Deposit
               </button>
             </div>
+
+            {primaryWallet && (
+              <div className="text-sm mt-2 text-primary">
+                <span className="font-bold">Connected Primary Wallet</span>{" "}
+                {truncateAddress(primaryWallet.address, 3)} (
+                {primaryWallet.chain})
+              </div>
+            )}
           </div>
 
           {/* TODO: add functionality */}

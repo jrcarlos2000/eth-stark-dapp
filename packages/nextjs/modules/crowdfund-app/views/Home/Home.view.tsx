@@ -38,7 +38,7 @@ export default function Home() {
                 onClick={() => router.push(`/crowdfund-app/detail/${item.id}`)}
               >
                 {/* <td>{item.name}</td> */}
-                <td>{truncateAddress(item.owner, 4)}</td>
+                <td>{truncateAddress(item.owner, 2)}</td>
                 <td>{item.network}</td>
                 <td>{item.targetAmount} USDT</td>
                 <td>{item.duration} days</td>
