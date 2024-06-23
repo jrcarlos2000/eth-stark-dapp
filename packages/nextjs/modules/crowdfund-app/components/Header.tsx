@@ -5,7 +5,10 @@ export default function Header() {
   return (
     <div className="flex justify-end w-screen ">
       <div className="flex items-center gap-3 px-4 my-2">
-        <Link href={"/crowdfund-app/create"} className="btn btn-primary">
+        <Link
+          href={"/crowdfund-app/create"}
+          className="btn btn-primary btn-sm h-full"
+        >
           Create Campaign
         </Link>
         <DynamicWidget />

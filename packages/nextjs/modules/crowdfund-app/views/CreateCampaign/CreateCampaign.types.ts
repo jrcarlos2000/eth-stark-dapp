@@ -4,4 +4,5 @@ export type CampaignData = {
   name: string;
   targetAmountInUSDT: number;
   durationInSeconds: number;
+  description: string;
 };

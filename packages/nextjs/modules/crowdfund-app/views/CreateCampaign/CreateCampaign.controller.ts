@@ -22,6 +22,7 @@ export function useCreateCampaignController(props: CreateCampaignProps) {
   const [isCreateCampaignLoading, setIsCreateCampaignLoading] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
     name: "",
+    description: "",
     durationInSeconds: 0,
     targetAmountInUSDT: 0,
   });

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "~~/styles/globals.css";
 import Header from "~~/modules/crowdfund-app/components/Header";
 import { IPFSProvider } from "~~/modules/crowdfund-app/services/ipfs";
 
