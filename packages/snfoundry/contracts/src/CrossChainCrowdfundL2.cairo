@@ -13,6 +13,8 @@ struct Campaign {
     duration: u256,
     start_time: u256,
     data_cid: ByteArray,
+    owner: ContractAddress,
+    is_active: bool,
 }
 
 #[starknet::interface]
@@ -28,8 +30,7 @@ pub trait ICrossChainCrowdfundL2<TContractState> {
     fn get_strk_campaign(self: @TContractState, campaign_id: u256) -> (u256, u256, u256, ByteArray); // shows target amount, raised amount, deadline, data_cid
     fn get_eth_campaign(self: @TContractState, campaign_id: u256) -> u256; // todo add other elements, for now only raised amount
 
-    //test view
-    fn last_recipient(self: @TContractState) -> ContractAddress;
+    fn get_all_campaigns(self: @TContractState) -> Array<( (u256, u256, u256, u256), (ByteArray, ContractAddress, bool))>;
 }
 
 /// @author Carlos Ramos
@@ -87,12 +88,10 @@ mod CrossChainCrowdfundL2 {
         strk_campaign_start_time: LegacyMap<u256, u256>,
         strk_campaign_data_cid: LegacyMap<u256, ByteArray>,
         strk_campaign_owner: LegacyMap<u256, ContractAddress>,
+        strk_campaign_is_active: LegacyMap<u256, bool>,
 
         // ethereum campaigns
         eth_campaign_amount_raised: LegacyMap<u256, u256>,
-
-        // some test 
-        last_recipient: ContractAddress,    
 
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
@@ -150,8 +149,21 @@ mod CrossChainCrowdfundL2 {
             self.strk_campaign_raised_amount.write(strk_campaign_id, raised_amount + amount);
         }
 
-        fn last_recipient(self: @ContractState) -> ContractAddress {
-            self.last_recipient.read()
+        fn get_all_campaigns(self: @ContractState) -> Array<( (u256, u256, u256, u256), (ByteArray, ContractAddress, bool))> {
+            let mut counter = self.strk_campaign_counter.read();
+            let mut campaigns = array![];
+
+            loop {
+                let campaign_id = counter - 1;
+                let campaign = self._get_campaign(campaign_id);
+                campaigns.append(campaign);
+                if counter == 1 {
+                    break;
+                }
+                counter -= 1;
+            };
+
+            campaigns
         }
     }
 
@@ -159,7 +171,6 @@ mod CrossChainCrowdfundL2 {
     fn set_succesful_campaign(ref self: ContractState, from_address: felt252, l1_success_campaign_message: L1SucessCampaignMessage) {
         let l1_campaign_id: u256 = l1_success_campaign_message.l1CampaignId.try_into().unwrap();
         let l2_recipient: ContractAddress = l1_success_campaign_message.l2Recipient.try_into().unwrap();
-        self.last_recipient.write(l2_recipient);
         // transfer the funds to the recipient
         let raised_amount = self.eth_campaign_amount_raised.read(l1_campaign_id);
         self.eth_campaign_amount_raised.write(l1_campaign_id, 0);
@@ -198,7 +209,19 @@ mod CrossChainCrowdfundL2 {
             self.strk_campaign_start_time.write(campaign_id, block_timestamp);
             self.strk_campaign_data_cid.write(campaign_id, data_cid.clone());
             self.strk_campaign_owner.write(campaign_id, get_caller_address());
+            self.strk_campaign_is_active.write(campaign_id, true);
             self.emit(StrkCampaignCreated { campaign_id: campaign_id, owner: get_caller_address(), target_amount, deadline: block_timestamp + duration, data_cid });
+        }
+
+        fn _get_campaign(self: @ContractState, campaign_id: u256) -> ( (u256, u256, u256, u256), (ByteArray, ContractAddress, bool)) {
+            let target_amount = self.strk_campaign_target_amount.read(campaign_id);
+            let raised_amount = self.strk_campaign_raised_amount.read(campaign_id);
+            let duration = self.strk_campaign_duration.read(campaign_id);
+            let start_time = self.strk_campaign_start_time.read(campaign_id);
+            let data_cid = self.strk_campaign_data_cid.read(campaign_id);
+            let owner = self.strk_campaign_owner.read(campaign_id);
+            let is_active = self.strk_campaign_is_active.read(campaign_id);
+            ((target_amount, raised_amount, duration, start_time), (data_cid, owner, is_active))
         }
     }
 

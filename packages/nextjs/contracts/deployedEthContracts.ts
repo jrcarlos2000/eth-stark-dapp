@@ -936,6 +936,11 @@ const deployedContracts = {
               type: "address",
               internalType: "address",
             },
+            {
+              name: "isActive",
+              type: "bool",
+              internalType: "bool",
+            },
           ],
           stateMutability: "view",
         },
@@ -961,6 +966,56 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "getAllCampaignsData",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "tuple[]",
+              internalType: "struct CrossChainCrowdfundL1.EthCampaign[]",
+              components: [
+                {
+                  name: "targetAmount",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+                {
+                  name: "raisedAmount",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+                {
+                  name: "duration",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+                {
+                  name: "startTime",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+                {
+                  name: "dataCid",
+                  type: "string",
+                  internalType: "string",
+                },
+                {
+                  name: "owner",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "isActive",
+                  type: "bool",
+                  internalType: "bool",
+                },
+              ],
+            },
+          ],
+          stateMutability: "view",
         },
         {
           type: "function",
@@ -1130,7 +1185,7 @@ const deployedContracts = {
   },
   11155111: {
     MockUSDT: {
-      address: "0xf838912840045791cdc07852d6e12c8536327f4a",
+      address: "0x137f7a1c85b5a0971657aa724cac91fffe33ecce",
       abi: [
         {
           type: "constructor",
@@ -1485,7 +1540,7 @@ const deployedContracts = {
       },
     },
     CrossChainCrowdfundL1: {
-      address: "0x11bf8e7ec2f4a92aa234084bc25049fb243e6051",
+      address: "0x77a50a79dde845148b76da2f1d16c07ebf3d9220",
       abi: [
         {
           type: "constructor",
@@ -1588,6 +1643,11 @@ const deployedContracts = {
               type: "address",
               internalType: "address",
             },
+            {
+              name: "isActive",
+              type: "bool",
+              internalType: "bool",
+            },
           ],
           stateMutability: "view",
         },
@@ -1613,6 +1673,56 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "getAllCampaignsData",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "tuple[]",
+              internalType: "struct CrossChainCrowdfundL1.EthCampaign[]",
+              components: [
+                {
+                  name: "targetAmount",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+                {
+                  name: "raisedAmount",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+                {
+                  name: "duration",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+                {
+                  name: "startTime",
+                  type: "uint256",
+                  internalType: "uint256",
+                },
+                {
+                  name: "dataCid",
+                  type: "string",
+                  internalType: "string",
+                },
+                {
+                  name: "owner",
+                  type: "address",
+                  internalType: "address",
+                },
+                {
+                  name: "isActive",
+                  type: "bool",
+                  internalType: "bool",
+                },
+              ],
+            },
+          ],
+          stateMutability: "view",
         },
         {
           type: "function",

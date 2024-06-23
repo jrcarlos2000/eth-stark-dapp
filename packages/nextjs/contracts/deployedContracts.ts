@@ -7,7 +7,7 @@ const deployedContracts = {
   devnet: {
     MockUsdt: {
       address:
-        "0x07d1fe11539b6c1e16ce08de913ed95acfcd2ae33ac46fc3a2db5dba7cf1dffe",
+        "0x010198fa28e06ff955b4f8066de4f489706f0bc5ca397ec217f8c743fb051334",
       abi: [
         {
           type: "impl",
@@ -399,7 +399,7 @@ const deployedContracts = {
     },
     CrossChainCrowdfundL2: {
       address:
-        "0x04d9081b5685e8cd58d9d74fcab9b2fdf95ab7974aacd6c4428906ce4b85fef2",
+        "0x07643aae1b89b3eb7a9567dc27944b4907d456d43c9b2537c4eaeeccbf7bf130",
       abi: [
         {
           type: "impl",
@@ -436,6 +436,20 @@ const deployedContracts = {
             {
               name: "pending_word_len",
               type: "core::integer::u32",
+            },
+          ],
+        },
+        {
+          type: "enum",
+          name: "core::bool",
+          variants: [
+            {
+              name: "False",
+              type: "()",
+            },
+            {
+              name: "True",
+              type: "()",
             },
           ],
         },
@@ -540,11 +554,11 @@ const deployedContracts = {
             },
             {
               type: "function",
-              name: "last_recipient",
+              name: "get_all_campaigns",
               inputs: [],
               outputs: [
                 {
-                  type: "core::starknet::contract_address::ContractAddress",
+                  type: "core::array::Array::<((core::integer::u256, core::integer::u256, core::integer::u256, core::integer::u256), (core::byte_array::ByteArray, core::starknet::contract_address::ContractAddress, core::bool))>",
                 },
               ],
               state_mutability: "view",
@@ -742,7 +756,7 @@ const deployedContracts = {
   sepolia: {
     MockUsdt: {
       address:
-        "0x00c2cc490b41af9d2df22306a579d42d5d651732d6dc39de00861adf91f03bea",
+        "0x05fb6eab22bfa699aba6b9bdfbbdcbec52ea3bb25573b11505c298f4b185e915",
       abi: [
         {
           type: "impl",
@@ -1134,7 +1148,7 @@ const deployedContracts = {
     },
     CrossChainCrowdfundL2: {
       address:
-        "0x05b324f177894d47b0625e78067d506a7e23d061a8debc944310c9479d4b10aa",
+        "0x064de1dfad1e5a2d859914d8c0b5f06a1cc411a0bbc655b5d333c5b73ecaad16",
       abi: [
         {
           type: "impl",
@@ -1171,6 +1185,20 @@ const deployedContracts = {
             {
               name: "pending_word_len",
               type: "core::integer::u32",
+            },
+          ],
+        },
+        {
+          type: "enum",
+          name: "core::bool",
+          variants: [
+            {
+              name: "False",
+              type: "()",
+            },
+            {
+              name: "True",
+              type: "()",
             },
           ],
         },
@@ -1275,11 +1303,11 @@ const deployedContracts = {
             },
             {
               type: "function",
-              name: "last_recipient",
+              name: "get_all_campaigns",
               inputs: [],
               outputs: [
                 {
-                  type: "core::starknet::contract_address::ContractAddress",
+                  type: "core::array::Array::<((core::integer::u256, core::integer::u256, core::integer::u256, core::integer::u256), (core::byte_array::ByteArray, core::starknet::contract_address::ContractAddress, core::bool))>",
                 },
               ],
               state_mutability: "view",

@@ -7,10 +7,25 @@ import { Address } from "~~/components/scaffold-stark";
 import { useAccount as useStarkAccount } from "@starknet-react/core";
 import { Address as AddressType } from "@starknet-react/chains";
 import { useAccount as useEthAccount } from "wagmi";
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-stark/useScaffoldWriteContract";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-stark/useScaffoldReadContract";
 
 const Home: NextPage = () => {
   const connectedAddress = useStarkAccount();
   const connectedEthAddress = useEthAccount();
+
+  const { writeAsync } = useScaffoldWriteContract({
+    contractName: "CrossChainCrowdfundL2",
+    functionName: "create_campaign",
+    args: [10000, 10000, "hi"],
+  });
+
+  const { data } = useScaffoldReadContract({
+    contractName: "CrossChainCrowdfundL2",
+    functionName: "get_all_campaigns",
+  });
+
+  console.log(data);
   return (
     <>
       <div className="flex items-center flex-col flex-grow pt-10">
@@ -67,13 +82,13 @@ const Home: NextPage = () => {
             </div>
           </div>
         </div>
-        {/* <div
+        <div
           onClick={() => {
             writeAsync();
           }}
         >
           TEST TX
-        </div> */}
+        </div>
       </div>
     </>
   );

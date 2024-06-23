@@ -24,6 +24,7 @@ contract CrossChainCrowdfundL1 is Ownable {
         uint256 startTime;
         string dataCid;
         address owner;
+        bool isActive;
     }
 
     struct StrkCampaign {
@@ -65,7 +66,8 @@ contract CrossChainCrowdfundL1 is Ownable {
             duration: duration,
             startTime: block.timestamp,
             dataCid: dataCid,
-            owner: msg.sender
+            owner: msg.sender,
+            isActive: true
         });
         emit EthCampaignCreated(
             campaignCounter,
@@ -81,13 +83,19 @@ contract CrossChainCrowdfundL1 is Ownable {
         uint256 campaignId,
         uint256 l2recipient
     ) external payable {
+        EthCampaign memory _EthCampaign = campaigns[campaignId];
         require(
-            campaigns[campaignId].owner == msg.sender,
+            _EthCampaign.owner == msg.sender,
             "Only the owner can withdraw"
         );
-        uint256 amount = campaigns[campaignId].raisedAmount;
-        campaigns[campaignId].raisedAmount = 0;
+        require(_EthCampaign.isActive == true, "Campaign is still active");
+        _EthCampaign.isActive = false;
+
+        uint256 amount = _EthCampaign.raisedAmount;
+        _EthCampaign.raisedAmount = 0;
         IERC20(_baseToken).transfer(address(uint160(l2recipient)), amount);
+
+        campaigns[campaignId] = _EthCampaign;
 
         // l2 message
         uint256[] memory payload = new uint256[](2);
@@ -98,6 +106,19 @@ contract CrossChainCrowdfundL1 is Ownable {
             SET_SUCCESSFUL_CAMPAIGN,
             payload
         );
+    }
+
+    // note: match starknet contract call
+    function getAllCampaignsData()
+        external
+        view
+        returns (EthCampaign[] memory)
+    {
+        EthCampaign[] memory allCampaigns = new EthCampaign[](campaignCounter);
+        for (uint256 i = 1; i < campaignCounter; i++) {
+            allCampaigns[i] = campaigns[i];
+        }
+        return allCampaigns;
     }
 
     // function createCampaign(
