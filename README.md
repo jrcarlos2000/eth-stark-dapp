@@ -1,4 +1,4 @@
-# Eth-Stark Crowdsourcing Platform
+# CrossFund : Eth-Stark Crowdsourcing Platform
 
 ## Overview
 
