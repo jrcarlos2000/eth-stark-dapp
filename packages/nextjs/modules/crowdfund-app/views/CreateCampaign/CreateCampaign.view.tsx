@@ -15,8 +15,10 @@ function CreateCampaignView(props: CreateCampaignProps) {
     handleCreateCampaign,
     campaignData,
     updateCampaignData,
+    isPageLoading,
   } = useContext(CreateCampaignContext)!;
 
+  if (isPageLoading) return <>loading page...</>;
   if (isCreateCampaignLoading) return <>loading: creating campaign...</>;
 
   return (

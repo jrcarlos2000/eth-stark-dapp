@@ -29,6 +29,9 @@ import { WagmiProvider } from "wagmi";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 import { BlockieAvatar } from "./scaffold-stark";
 import { useInitializeNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
+import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
+import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
+import { StarknetWalletConnectors } from "@dynamic-labs/starknet";
 
 // tanstack react query config
 export const queryClient = new QueryClient({
@@ -75,24 +78,47 @@ export const ScaffoldStarkAppWithProviders = ({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StarknetConfig
-        chains={appChains}
-        provider={provider}
-        connectors={connectors}
-        explorer={starkscan}
+      <DynamicContextProvider
+        settings={{
+          environmentId: "eef08463-9eee-4347-a203-81006446159f",
+          initialAuthenticationMode: "connect-only",
+          walletConnectors: [
+            EthereumWalletConnectors,
+            StarknetWalletConnectors,
+          ],
+          bridgeChains: [
+            {
+              chain: "EVM",
+            },
+            {
+              chain: "STARK",
+            },
+          ],
+        }}
       >
-        <WagmiProvider config={wagmiConfig}>
-          <RainbowKitProvider
-            avatar={BlockieAvatar}
-            theme={
-              mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()
-            }
-          >
-            <ProgressBar />
-            <ScaffoldStarkApp>{children}</ScaffoldStarkApp>
-          </RainbowKitProvider>
-        </WagmiProvider>
-      </StarknetConfig>
+        <StarknetConfig
+          chains={appChains}
+          provider={provider}
+          connectors={connectors}
+          explorer={starkscan}
+        >
+          <WagmiProvider config={wagmiConfig}>
+            <RainbowKitProvider
+              avatar={BlockieAvatar}
+              theme={
+                mounted
+                  ? isDarkMode
+                    ? darkTheme()
+                    : lightTheme()
+                  : lightTheme()
+              }
+            >
+              <ProgressBar />
+              <ScaffoldStarkApp>{children}</ScaffoldStarkApp>
+            </RainbowKitProvider>
+          </WagmiProvider>
+        </StarknetConfig>
+      </DynamicContextProvider>
     </QueryClientProvider>
   );
 };
