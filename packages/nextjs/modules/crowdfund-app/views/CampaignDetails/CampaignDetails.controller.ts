@@ -45,6 +45,7 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   });
 
   // get connected address
+  const { primaryWallet } = useDynamicContext();
   const { connectedEthAddress, connectedStarkAddress } =
     useDynamicAllAccounts();
 
@@ -198,5 +199,6 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     isPageLoading,
     isGoal,
     handleOwnerWithdraw,
+    primaryWallet,
   };
 }
