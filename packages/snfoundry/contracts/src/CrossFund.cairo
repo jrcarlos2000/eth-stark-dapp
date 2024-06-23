@@ -15,6 +15,8 @@ struct Message {
 #[starknet::interface]
 pub trait ICrossFund<TContractState> {
     fn withdraw(ref self: TContractState, campaign_id: u256, l1_beneficiary: EthAddress);
+    fn deposit_to_strk_campaign(ref self: TContractState, campaign_id: u256, amount: u256);
+    fn deposit_to_eth_campaign(ref self: TContractState, campaign_id: u256, amount: u256);
 }
 
 #[starknet::contract]
@@ -111,6 +113,12 @@ use crossfund::CrossFundAlt::CrossFundAltComponent;
             let to_address: EthAddress = self.target_contract.read();
 
             send_message_to_l1_syscall(to_address.into(), buf.span()).unwrap_syscall();
+        }
+        fn deposit_to_strk_campaign(ref self: ContractState, campaign_id: u256, amount: u256) {
+            self.cross_fund_native.deposit(campaign_id, amount);
+        }
+        fn deposit_to_eth_campaign(ref self: ContractState, campaign_id: u256, amount: u256) {
+            self.cross_fund_alt.deposit(campaign_id, amount);
         }   
     }
 
@@ -124,7 +132,7 @@ use crossfund::CrossFundAlt::CrossFundAltComponent;
     }
 
     #[l1_handler]
-    fn set_succesful_campaign(ref self: ContractState, from_address: felt252, l1_message: Message) {
+    fn l1_message(ref self: ContractState, from_address: felt252, l1_message: Message) {
         let l1_campaign_id: u256 = l1_message.campaign_id.try_into().unwrap();
         let l2_recipient: ContractAddress = l1_message.recipient.try_into().unwrap();
         let sender_address: EthAddress = from_address.try_into().unwrap();
