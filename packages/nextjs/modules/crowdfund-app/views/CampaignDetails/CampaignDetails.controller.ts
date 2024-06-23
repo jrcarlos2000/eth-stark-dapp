@@ -47,8 +47,6 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   const { address: connectedEthAddress } = useEthAccount();
   const { address: connectedStarkAddress } = useStarkAccount();
 
-  const {} = useDynamicContext();
-
   const [depositInput, setDepositInput] = useState<number>(0);
 
   // post process raw data

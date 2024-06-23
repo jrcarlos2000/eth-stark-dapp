@@ -3395,6 +3395,7 @@ __metadata:
     blo: ^1.1.1
     burner-connector: ^0.0.8
     daisyui: ^4.7.3
+    dayjs: ^1.11.11
     eslint: ^8
     eslint-config-next: 14.1.3
     ethers: ^6.12.0
@@ -6341,6 +6342,13 @@ __metadata:
   dependencies:
     "@babel/runtime": ^7.21.0
   checksum: f7be01523282e9bb06c0cd2693d34f245247a29098527d4420628966a2d9aad154bd0e90a6b1cf66d37adcb769cd108cf8a7bd49d76db0fb119af5cdd13644f4
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:^1.11.11":
+  version: 1.11.11
+  resolution: "dayjs@npm:1.11.11"
+  checksum: 84788275aad8a87fee4f1ce4be08861df29687aae6b7b43dd65350118a37dda56772a3902f802cb2dc651dfed447a5a8df62d88f0fb900dba8333e411190a5d5
   languageName: node
   linkType: hard
 
