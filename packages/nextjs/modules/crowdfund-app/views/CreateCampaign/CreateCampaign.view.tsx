@@ -3,6 +3,7 @@
 import { ReactNode, createContext, useContext } from "react";
 import { CreateCampaignProps } from "./CreateCampaign.types";
 import { useCreateCampaignController } from "./CreateCampaign.controller";
+import { ContractType } from "~~/types/aggregations";
 
 const CreateCampaignContext = createContext<
   ReturnType<typeof useCreateCampaignController> | undefined
@@ -25,6 +26,11 @@ function FormLabel({
     </label>
   );
 }
+
+const contractTypeToNetworkName = {
+  [ContractType.ETH]: "Ethereum",
+  [ContractType.Starknet]: "StarkNet",
+};
 
 // implement UI here
 function CreateCampaignView(props: CreateCampaignProps) {
@@ -75,6 +81,42 @@ function CreateCampaignView(props: CreateCampaignProps) {
           </FormSection>
 
           {/* TODO: networks */}
+          <FormSection>
+            <FormLabel htmlFor="targetAmount">Network</FormLabel>
+            <div className="dropdown">
+              <div tabIndex={0} role="button" className="btn w-full">
+                <div className="w-full flex justify-start">
+                  {contractTypeToNetworkName[campaignData.network]}
+                </div>
+              </div>
+
+              <ul
+                tabIndex={0}
+                className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+              >
+                <li>
+                  <div
+                    className="cursor-pointer"
+                    onClick={() =>
+                      updateCampaignData({ network: ContractType.ETH })
+                    }
+                  >
+                    Ethereum
+                  </div>
+                </li>
+                <li>
+                  <div
+                    className="cursor-pointer"
+                    onClick={() =>
+                      updateCampaignData({ network: ContractType.Starknet })
+                    }
+                  >
+                    StarkNet
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </FormSection>
 
           <FormSection>
             <FormLabel htmlFor="targetAmount">Target Amount</FormLabel>

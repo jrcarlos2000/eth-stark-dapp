@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useAccount as useEthAccount } from "wagmi";
 import { encodeAbiParameters, encodeFunctionData, fromHex } from "viem";
 import useDynamicWriteTxn from "~~/hooks/dynamic/useDynamicWriteTxn";
+import { ContractType } from "~~/types/aggregations";
 
 // implement controller here
 export function useCreateCampaignController(props: CreateCampaignProps) {
@@ -25,6 +26,7 @@ export function useCreateCampaignController(props: CreateCampaignProps) {
     description: "",
     durationInSeconds: 0,
     targetAmountInUSDT: 0,
+    network: ContractType.ETH,
   });
   const { address } = useEthAccount();
   const ipfsClient = useIPFS();

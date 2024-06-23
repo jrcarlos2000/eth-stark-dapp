@@ -1,3 +1,5 @@
+import { ContractType } from "~~/types/aggregations";
+
 export type CreateCampaignProps = {};
 
 export type CampaignData = {
@@ -5,4 +7,5 @@ export type CampaignData = {
   targetAmountInUSDT: number;
   durationInSeconds: number;
   description: string;
+  network: ContractType;
 };
