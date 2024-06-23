@@ -44,9 +44,9 @@ function CreateCampaignView(props: CreateCampaignProps) {
 
   if (isPageLoading)
     return (
-      <div className="w-full h-full flex flex-col justify-center items-center">
-        <div className="loading loading-bars loading-lg"></div>
-        <div>Loading Page...</div>
+      <div className="w-full h-[60vh] flex flex-col justify-center items-center">
+        <div className="loading loading-bars loading-lg mb-5"></div>
+        <div className="text-2xl">Loading Page...</div>
       </div>
     );
 
