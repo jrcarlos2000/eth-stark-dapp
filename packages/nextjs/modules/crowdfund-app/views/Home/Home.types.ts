@@ -4,7 +4,8 @@ export type HomeTableItem = {
   name: string;
   network: ContractType;
   targetAmount: number;
-  endsAt: Date;
+  duration: number;
   owner: string;
   isActive: boolean;
+  id: number;
 };

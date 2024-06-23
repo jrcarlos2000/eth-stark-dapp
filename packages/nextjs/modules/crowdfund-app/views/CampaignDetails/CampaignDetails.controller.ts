@@ -61,6 +61,7 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
       startTime,
       dataCid,
       address,
+      isActive,
     ] = campaignDetailDataEthRaw;
 
     return {
@@ -71,6 +72,7 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
       startTime: Number(startTime),
       dataCid,
       address,
+      isActive,
     };
   }, [campaignDetailDataEthRaw, raisedAmountStark]);
 

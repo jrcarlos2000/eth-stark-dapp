@@ -52,7 +52,7 @@ function CreateCampaignView(props: CreateCampaignProps) {
 
   return (
     <div className="flex justify-center items-center">
-      <div className="w-3/5 p-5 flex flex-col items-center justify-center justify-self-center rounded-md bg-base-300 mt-10">
+      <div className="w-3/5 p-5 flex flex-col items-center justify-center justify-self-center rounded-md border border-slate-600 mt-10">
         <h1 className="text-2xl font-bold pb-4">Create Campaign</h1>
         <div className="flex flex-col gap-4 w-full">
           <FormSection>

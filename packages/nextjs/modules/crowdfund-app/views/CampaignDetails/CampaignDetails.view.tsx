@@ -48,7 +48,11 @@ function CampaignDetailsView(props: CampaignDetailProps) {
             </div>
             <div>
               <Indicator>Status</Indicator>
-              <div className="badge badge-success">active</div>
+              {campaignDetailData.isActive ? (
+                <div className="badge badge-success">active</div>
+              ) : (
+                <div className="badge badge-error">inactive</div>
+              )}
             </div>
             <div>
               <Indicator>Progress</Indicator>
@@ -82,7 +86,8 @@ function CampaignDetailsView(props: CampaignDetailProps) {
             <h2 className="font-bold">Owner Withdraw</h2>
             <p className="text-sm text-neutral-400">
               You are the owner of this campaign, you can withdraw funds here,
-              please be careful of this operation
+              please be careful of this operation. The campaign will finish once
+              you withdraw.
             </p>
             <button className="btn btn-error" onClick={handleOwnerWithdraw}>
               Withdraw Raised Amount
@@ -122,7 +127,7 @@ function CampaignDetailsView(props: CampaignDetailProps) {
           <div className="flex-1">
             <h2 className="font-bold">Withdraw</h2>
             <p className="text-sm text-neutral-400">
-              This withdrawal will be saved to your primary wallet.
+              This withdrawal will be saved to the wallet you donated from.
             </p>
             <div className="flex gap-3">
               <div className="flex items-center justify-between input">
