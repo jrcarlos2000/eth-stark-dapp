@@ -1,4 +1,4 @@
-use starknet::{ContractAddress, get_block_timestamp};
+use starknet::{ContractAddress, get_block_timestamp, EthAddress};
 
 // SPDX-License-Identifier: MIT
 // @author : Carlos Ramos
@@ -6,61 +6,44 @@ use starknet::{ContractAddress, get_block_timestamp};
 
 
 #[derive(Drop, Serde)]
-struct L1SucessCampaignMessage {
-    l1CampaignId: felt252,
-    l2Recipient: felt252,
-}
-
-
-struct Campaign {
-    target_amount: u256,
-    raised_amount: u256,
-    duration: u256,
-    start_time: u256,
-    data_cid: ByteArray,
-    owner: ContractAddress,
-    is_active: bool,
+struct Message {
+    campaign_id: felt252,
+    status: felt252,
+    recipient: felt252,
 }
 
 #[starknet::interface]
 pub trait ICrossFund<TContractState> {
-
-    // setters
-    fn create_campaign(ref self: TContractState, target_amount: u256, duration : u256, data_cid: ByteArray);
-    fn deposit_to_eth_campaign(ref self: TContractState, eth_campaign_id: u256, amount: u256);
-    fn deposit_to_strk_campaign(ref self: TContractState, strk_campaign_id: u256, amount: u256);
-
-    // view functions
-    fn get_strk_campaign_counter(self: @TContractState) -> u256;
-    fn get_strk_campaign(self: @TContractState, campaign_id: u256) -> (u256, u256, u256, ByteArray); // shows target amount, raised amount, deadline, data_cid
-    fn get_all_campaigns(self: @TContractState) -> Array<( (u256, u256, u256, u256), (ByteArray, ContractAddress, bool))>;
+    fn withdraw(ref self: TContractState, campaign_id: u256, l1_beneficiary: EthAddress);
 }
 
 #[starknet::contract]
 mod CrossFund {
-    use crossfund::CrossFundMessenger::CrossFundMessengerComponent;
+    use crossfund::CrossFundNative::ICrossFundNative;
+use crossfund::CrossFundAlt::CrossFundAltComponent;
+    use crossfund::CrossFundNative::CrossFundNativeComponent;
     use core::traits::TryInto;
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
     use starknet::{get_caller_address, get_contract_address, EthAddress, SyscallResultTrait};
     use starknet::syscalls::send_message_to_l1_syscall;
-    use super::{ContractAddress, ICrossFund, L1SucessCampaignMessage, Campaign, get_block_timestamp};
+    use super::{ContractAddress, Message, get_block_timestamp, ICrossFund};
     use core::num::traits::Zero;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
-    component!(path: CrossFundMessengerComponent, storage: cross_fund_messenger, event: CrossFundMessengerEvent);
+    component!(path: CrossFundAltComponent, storage: cross_fund_alt, event: CrossFundMessengerEvent);
+    component!(path: CrossFundNativeComponent, storage: cross_fund_native, event: CrossFundNativeEvent);
 
     #[abi(embed_v0)]
     impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
-    impl CrossFundMessenger = CrossFundMessengerComponent::CrossFundMessengerImpl<ContractState>;
+    impl CrossFundAlt = CrossFundAltComponent::CrossFundAltImpl<ContractState>;
+    impl CrossFundNative = CrossFundNativeComponent::CrossFundNativeImpl<ContractState>;
 
 
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
-    impl CrossFundMessengerInternalImpl = CrossFundMessengerComponent::InternalImpl<ContractState>;
+    impl CrossFundAltInternalImpl = CrossFundAltComponent::InternalImpl<ContractState>;
+    impl CrossFundNativeInternalImpl = CrossFundNativeComponent::InternalImpl<ContractState>;
 
-
-    const ETH_CONTRACT_ADDRESS: felt252 =
-        0x49D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7;
 
     #[event]
     #[derive(Drop, starknet::Event)]
@@ -68,7 +51,9 @@ mod CrossFund {
         #[flat]
         OwnableEvent: OwnableComponent::Event,
         #[flat]
-        CrossFundMessengerEvent: CrossFundMessengerComponent::Event,
+        CrossFundMessengerEvent: CrossFundAltComponent::Event,
+        #[flat]
+        CrossFundNativeEvent: CrossFundNativeComponent::Event,
         StrkCampaignCreated: StrkCampaignCreated,
     }
 
@@ -87,6 +72,7 @@ mod CrossFund {
     struct Storage {
         
         base_token: ContractAddress,
+        target_contract: EthAddress,
 
         // starknet campaigns
         strk_campaign_counter: u256,
@@ -104,7 +90,28 @@ mod CrossFund {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
-        cross_fund_messenger: CrossFundMessengerComponent::Storage
+        cross_fund_alt: CrossFundAltComponent::Storage,
+        #[substorage(v0)]
+        cross_fund_native: CrossFundNativeComponent::Storage,
+    }
+
+    #[abi(embed_v0)]
+    impl CrossFundImpl of ICrossFund<ContractState> {
+        fn withdraw(ref self: ContractState, campaign_id: u256, l1_beneficiary: EthAddress) {
+            let status = self.cross_fund_native._withdraw(campaign_id);
+
+            let mut l2_message = Message {
+                campaign_id: campaign_id.try_into().unwrap(),
+                status: status.try_into().unwrap(),
+                recipient: l1_beneficiary.try_into().unwrap(),
+            };
+
+            let mut buf: Array<felt252> = array![];
+            l2_message.serialize(ref buf);
+            let to_address: EthAddress = self.target_contract.read();
+
+            send_message_to_l1_syscall(to_address.into(), buf.span()).unwrap_syscall();
+        }   
     }
 
     #[constructor]
@@ -112,100 +119,23 @@ mod CrossFund {
         // self.ownable.initializer(owner);
         self.strk_campaign_counter.write(1);
         self.base_token.write(base_token);
-    }
-
-    #[abi(embed_v0)]
-    impl ICrossFundImpl of ICrossFund<ContractState> {
-        fn create_campaign(ref self: ContractState, target_amount: u256, duration : u256, data_cid: ByteArray) {
-            self._create_campaign(target_amount, duration, data_cid);
-        }
-
-        fn get_strk_campaign_counter(self: @ContractState) -> u256 {
-            self.strk_campaign_counter.read()
-        }
-
-        fn get_strk_campaign(self: @ContractState, campaign_id: u256) -> (u256, u256, u256, ByteArray) {
-            let target_amount = self.strk_campaign_target_amount.read(campaign_id);
-            let raised_amount = self.strk_campaign_raised_amount.read(campaign_id);
-            let deadline = self.strk_campaign_duration.read(campaign_id) + self.strk_campaign_start_time.read(campaign_id);
-            let data_cid = self.strk_campaign_data_cid.read(campaign_id);
-            (target_amount, raised_amount, deadline, data_cid)
-        }
-
-        fn deposit_to_eth_campaign(ref self: ContractState, eth_campaign_id: u256, amount: u256) {
-            let token = self.base_token.read();
-            let is_success = IERC20CamelDispatcher { contract_address: token }.transferFrom(get_caller_address(), get_contract_address(), amount);
-            assert(is_success, 'transfer failed');
-            self.cross_fund_messenger._increase_campaign_balance(eth_campaign_id, amount);
-        }
-
-        fn deposit_to_strk_campaign(ref self: ContractState, strk_campaign_id: u256, amount: u256) {
-            // use base token
-            let token = self.base_token.read();
-            let is_success = IERC20CamelDispatcher { contract_address: token }.transferFrom(get_caller_address(), get_contract_address(), amount);
-            assert(is_success, 'transfer failed');
-
-            let raised_amount = self.strk_campaign_raised_amount.read(strk_campaign_id);
-            self.strk_campaign_raised_amount.write(strk_campaign_id, raised_amount + amount);
-        }
-
-        fn get_all_campaigns(self: @ContractState) -> Array<( (u256, u256, u256, u256), (ByteArray, ContractAddress, bool))> {
-            let mut counter = self.strk_campaign_counter.read();
-            let mut campaigns = array![];
-
-            loop {
-                if counter == 1 {
-                    break;
-                }
-                let campaign_id = counter - 1;
-                let campaign = self._get_campaign(campaign_id);
-                campaigns.append(campaign);
-
-                counter -= 1;
-            };
-
-            campaigns
-        }
+        self.cross_fund_alt.initialize(base_token);
+        self.cross_fund_native.initialize(base_token);
     }
 
     #[l1_handler]
-    fn set_succesful_campaign(ref self: ContractState, from_address: felt252, l1_success_campaign_message: L1SucessCampaignMessage) {
-        let l1_campaign_id: u256 = l1_success_campaign_message.l1CampaignId.try_into().unwrap();
-        let l2_recipient: ContractAddress = l1_success_campaign_message.l2Recipient.try_into().unwrap();
-        // transfer the funds to the recipient
-        let raised_amount = self.eth_campaign_amount_raised.read(l1_campaign_id);
-        self.eth_campaign_amount_raised.write(l1_campaign_id, 0);
-        let token = self.base_token.read();
-        let is_success = IERC20CamelDispatcher { contract_address: token }.transfer(l2_recipient, raised_amount);
-    }
-    
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        fn _create_campaign(ref self: ContractState, target_amount: u256, duration : u256, data_cid: ByteArray) {
-            // creates a campaign on this contract
-            let block_timestamp:u256 = get_block_timestamp().try_into().unwrap();
-            let campaign_id = self.strk_campaign_counter.read();
-            self.strk_campaign_counter.write(campaign_id + 1);
-            self.strk_campaign_target_amount.write(campaign_id, target_amount);
-            self.strk_campaign_raised_amount.write(campaign_id, 0);
-            self.strk_campaign_duration.write(campaign_id, duration);
-            self.strk_campaign_start_time.write(campaign_id, block_timestamp);
-            self.strk_campaign_data_cid.write(campaign_id, data_cid.clone());
-            self.strk_campaign_owner.write(campaign_id, get_caller_address());
-            self.strk_campaign_is_active.write(campaign_id, true);
-            self.emit(StrkCampaignCreated { campaign_id: campaign_id, owner: get_caller_address(), target_amount, deadline: block_timestamp + duration, data_cid });
-        }
+    fn set_succesful_campaign(ref self: ContractState, from_address: felt252, l1_message: Message) {
+        let l1_campaign_id: u256 = l1_message.campaign_id.try_into().unwrap();
+        let l2_recipient: ContractAddress = l1_message.recipient.try_into().unwrap();
+        let sender_address: EthAddress = from_address.try_into().unwrap();
 
-        fn _get_campaign(self: @ContractState, campaign_id: u256) -> ( (u256, u256, u256, u256), (ByteArray, ContractAddress, bool)) {
-            let target_amount = self.strk_campaign_target_amount.read(campaign_id);
-            let raised_amount = self.strk_campaign_raised_amount.read(campaign_id);
-            let duration = self.strk_campaign_duration.read(campaign_id);
-            let start_time = self.strk_campaign_start_time.read(campaign_id);
-            let data_cid = self.strk_campaign_data_cid.read(campaign_id);
-            let owner = self.strk_campaign_owner.read(campaign_id);
-            let is_active = self.strk_campaign_is_active.read(campaign_id);
-            ((target_amount, raised_amount, duration, start_time), (data_cid, owner, is_active))
+        assert(sender_address == self.target_contract.read().into(), 'only target contract');
+
+        let status: u8 = l1_message.status.try_into().unwrap();
+        if status == 1 {
+            self.cross_fund_alt._deactivate_campaign(l1_campaign_id);
+        } else {
+            self.cross_fund_alt._withdraw(l1_campaign_id, l2_recipient);
         }
     }
-
 }
