@@ -16,6 +16,10 @@ import {
   useScaffoldMultiWriteContract as useScaffoldMultiWriteStarkContract,
 } from "~~/hooks/scaffold-stark/useScaffoldMultiWriteContract";
 import { Address, fromHex, parseEther, parseUnits } from "viem";
+import useDynamicWriteTxn from "~~/hooks/dynamic/useDynamicWriteTxn";
+import { Call, CallDetails } from "starknet-dev";
+import { encodeCalldataArgs } from "../../services/starknet";
+import { parseFunctionParams } from "~~/utils/scaffold-stark/contract";
 
 export function useCampaignDetailsController(props: CampaignDetailProps) {
   const ipfsClient = useIPFS();
@@ -89,21 +93,12 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   const crowdfundStarkContractInfo = useDeployedStarkContractInfo(
     "CrossChainCrowdfundL2"
   );
-  const { writeAsync: approveAndDepositToStark } =
-    useScaffoldMultiWriteStarkContract({
-      calls: [
-        createStarkContractCall("MockUsdt", "approve", [
-          crowdfundStarkContractInfo.data?.address,
-          BigInt((depositInput || 0) * 10 ** 18),
-        ]),
-        createStarkContractCall(
-          "CrossChainCrowdfundL2",
-          "deposit_to_eth_campaign",
-          [parseInt(props.id), BigInt((depositInput || 0) * 10 ** 18)]
-        ),
-      ],
-    });
+
+  const { writeTxn } = useDynamicWriteTxn();
   const [isDepositLoading, setIsDepositLoading] = useState(false);
+
+  const { data: starkMockUsdtInfo, ...starkMockUsdtInfoState } =
+    useDeployedStarkContractInfo("MockUsdt");
 
   // deposit funds
   const handleDepositFunds = async ({
@@ -112,10 +107,32 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     to?: ContractType;
   }) => {
     setIsDepositLoading(true);
-    return approveAndDepositToStark()
+    console.log({ depositInput });
+    return writeTxn([
+      {
+        contractAddress: starkMockUsdtInfo!.address,
+        entrypoint: "approve",
+        calldata: encodeCalldataArgs([
+          crowdfundStarkContractInfo.data!.address,
+          BigInt((depositInput || 0) * 10 ** 18),
+        ]),
+      },
+      {
+        contractAddress: crowdfundStarkContractInfo.data!.address,
+        entrypoint: "deposit_to_eth_campaign",
+        calldata: encodeCalldataArgs([
+          parseInt(props.id),
+          BigInt((depositInput || 0) * 10 ** 18),
+        ]),
+      },
+    ])
       .then(() => {
         refetchEthData();
         refetchStarkData();
+      })
+      .catch((e: any) => {
+        console.error("ERRORSTACK", e.message);
+        console.error("ERRORSTACK", e.stack);
       })
       .finally(() => setIsDepositLoading(false));
   };
@@ -149,6 +166,7 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     campaignDetailIsLoading ||
     metadataQuery.isLoading ||
     crowdfundStarkContractInfo.isLoading ||
+    starkMockUsdtInfoState.isLoading ||
     isLoadingWithdraw ||
     raisedAmountStarkLoading;
 
