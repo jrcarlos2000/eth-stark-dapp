@@ -79,6 +79,21 @@ contract CrossChainCrowdfundL1 is Ownable {
         campaignCounter++;
     }
 
+    function depositToEthCampaign(
+        uint256 campaignId,
+        uint256 amount
+    ) external payable {
+        EthCampaign memory _EthCampaign = campaigns[campaignId];
+        require(_EthCampaign.isActive == true, "Campaign is still active");
+        IERC20(_baseToken).transferFrom(
+            address(msg.sender),
+            address(this),
+            amount
+        );
+        _EthCampaign.raisedAmount += amount;
+        campaigns[campaignId] = _EthCampaign;
+    }
+
     function campaignOwnerWithdraw(
         uint256 campaignId,
         uint256 l2recipient

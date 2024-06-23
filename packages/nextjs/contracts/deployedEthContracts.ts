@@ -969,6 +969,24 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "depositToEthCampaign",
+          inputs: [
+            {
+              name: "campaignId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "amount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "payable",
+        },
+        {
+          type: "function",
           name: "getAllCampaignsData",
           inputs: [],
           outputs: [
@@ -1185,7 +1203,7 @@ const deployedContracts = {
   },
   11155111: {
     MockUSDT: {
-      address: "0xf6bd927b4e09a94525efd6c64694848174106a7c",
+      address: "0x29dea1cc1c94534745f0ecd1a9f46dfa74c3efad",
       abi: [
         {
           type: "constructor",
@@ -1540,7 +1558,7 @@ const deployedContracts = {
       },
     },
     CrossChainCrowdfundL1: {
-      address: "0x2dbe30fb34c8158966678b3039fc456a4759df8b",
+      address: "0x5b930db403f26dddd32f2aeefce230c5f7d2f4eb",
       abi: [
         {
           type: "constructor",
@@ -1673,6 +1691,24 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "depositToEthCampaign",
+          inputs: [
+            {
+              name: "campaignId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "amount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "payable",
         },
         {
           type: "function",

@@ -38,7 +38,7 @@ contract DeployScript is ScaffoldETHDeploy {
         );
 
         // SETUP L2 CONTRACT ADDRESS
-        uint256 l2ContractAddress = 0x076d1eaa9351889ecb911680146085fbbed17fafb2ff9cce0733baaad344d7ff;
+        uint256 l2ContractAddress = 0x03f467eda2a1e009bf1d474498dd9b84100fc8fbf02e3cdc1b4d63f84d39003c;
         l1MessageContract.setUpTargetContract(l2ContractAddress);
         vm.stopBroadcast();
 
