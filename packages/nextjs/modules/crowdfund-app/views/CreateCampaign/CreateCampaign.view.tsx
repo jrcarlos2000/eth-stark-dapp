@@ -43,7 +43,6 @@ function CreateCampaignView(props: CreateCampaignProps) {
         <div>Loading Page...</div>
       </div>
     );
-  if (isCreateCampaignLoading) return <>loading: creating campaign...</>;
 
   return (
     <div className="flex justify-center items-center">
@@ -116,9 +115,11 @@ function CreateCampaignView(props: CreateCampaignProps) {
           </FormSection>
 
           <button
-            className="btn btn-primary btn-lg w-full mt-3"
+            className={`btn btn-primary btn-lg w-full mt-3 ${isCreateCampaignLoading && "btn-disabled"}`}
             onClick={(e) => {
               e.preventDefault();
+              if (isCreateCampaignLoading) return;
+
               const {
                 name,
                 durationInSeconds: duration,
@@ -134,6 +135,9 @@ function CreateCampaignView(props: CreateCampaignProps) {
             }}
           >
             Start Raising
+            {isCreateCampaignLoading && (
+              <span className="loading loading-spinner"></span>
+            )}
           </button>
         </div>
       </div>
