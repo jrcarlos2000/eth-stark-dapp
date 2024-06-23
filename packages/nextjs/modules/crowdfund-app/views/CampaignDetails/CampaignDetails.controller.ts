@@ -106,6 +106,10 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   }) => {
     setIsDepositLoading(true);
 
+    // console.log("deposit", {
+    //   depositInput,
+    // });
+
     return writeTxn([
       {
         contractAddress: starkMockUsdtInfo!.address,

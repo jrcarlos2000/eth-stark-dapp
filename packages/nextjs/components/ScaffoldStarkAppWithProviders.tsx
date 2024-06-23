@@ -77,7 +77,7 @@ export const ScaffoldStarkAppWithProviders = ({
   return (
     <QueryClientProvider client={queryClient}>
       <DynamicContextProvider
-        theme={"dark"}
+        theme={"light"}
         settings={{
           environmentId: "eef08463-9eee-4347-a203-81006446159f",
           initialAuthenticationMode: "connect-only",

@@ -143,12 +143,12 @@ function CreateCampaignView(props: CreateCampaignProps) {
               <input
                 type="number"
                 name="duration"
-                value={campaignData.durationInSeconds}
+                value={campaignData.durationInSeconds / 86400}
                 placeholder="10"
                 className="flex-1"
                 onChange={(e) =>
                   updateCampaignData({
-                    durationInSeconds: parseInt(e.target.value),
+                    durationInSeconds: parseInt(e.target.value) * 86400,
                   })
                 }
               />
@@ -164,6 +164,7 @@ function CreateCampaignView(props: CreateCampaignProps) {
 
               const {
                 name,
+                description,
                 durationInSeconds: duration,
                 targetAmountInUSDT: targetAmount,
               } = campaignData;
@@ -172,6 +173,8 @@ function CreateCampaignView(props: CreateCampaignProps) {
                 duration,
                 data: JSON.stringify({
                   name,
+                  description,
+                  startTime: new Date(),
                 }),
               });
             }}
