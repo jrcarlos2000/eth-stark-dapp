@@ -48,7 +48,7 @@ const ScaffoldStarkApp = ({ children }: { children: React.ReactNode }) => {
   useMessaging();
   return (
     <>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen w-screen">
         <main className="relative flex flex-col flex-1">{children}</main>
       </div>
       <Toaster />
