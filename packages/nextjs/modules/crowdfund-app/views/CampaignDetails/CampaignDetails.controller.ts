@@ -16,6 +16,7 @@ import { Address, encodeFunctionData, fromHex, parseEther } from "viem";
 import useDynamicWriteTxn from "~~/hooks/dynamic/useDynamicWriteTxn";
 import { encodeCalldataArgs } from "../../services/starknet";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { useDynamicAllAccounts } from "~~/hooks/dynamic";
 
 export function useCampaignDetailsController(props: CampaignDetailProps) {
   const ipfsClient = useIPFS();
@@ -44,8 +45,8 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   });
 
   // get connected address
-  const { address: connectedEthAddress } = useEthAccount();
-  const { address: connectedStarkAddress } = useStarkAccount();
+  const { connectedEthAddress, connectedStarkAddress } =
+    useDynamicAllAccounts();
 
   const [depositInput, setDepositInput] = useState<number>(0);
 
