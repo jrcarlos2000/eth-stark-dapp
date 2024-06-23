@@ -1,18 +1,8 @@
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { getChain } from "@dynamic-labs/utils";
-import { T } from "@starknet-react/core/dist/index-79NvzQC9";
 import { useMutation } from "@tanstack/react-query";
-import { cairo, uint256 } from "starknet";
 import { AllowArray, WalletAccount, Call } from "starknet-dev";
-import {
-  Address,
-  Hex,
-  SendTransactionParameters,
-  Transaction,
-  WalletClient,
-  parseEther,
-} from "viem";
-import { tryParsingParamReturnValues } from "~~/utils/scaffold-stark/contract";
+import { Address, SendTransactionParameters, WalletClient } from "viem";
 
 export type TransactionResult = {
   hash: string;
@@ -28,10 +18,6 @@ async function sendStarknetTxn({
 }): Promise<TransactionResult> {
   const transaction = await provider.execute(txnDetails);
 
-  console.log("transaction", transaction);
-
-  console.log("receipt", transaction.transaction_hash);
-
   return {
     hash: transaction.transaction_hash,
   };
@@ -45,8 +31,6 @@ async function sendEthTxn({
   provider: WalletClient;
   txnDetails: Partial<SendTransactionParameters>;
 }): Promise<TransactionResult> {
-  console.log({ txnDetails });
-
   const hash = await provider.sendTransaction({
     account: provider.account?.address as Address,
     chain: getChain(await provider.getChainId()),
@@ -73,14 +57,12 @@ export default function useDynamicWriteTxn() {
       if (!provider) throw new Error("Wallet not connected");
 
       if (primaryWallet?.connector.connectedChain === "STARK") {
-        console.log("executing stark txn");
         return sendStarknetTxn({
           provider: provider as WalletAccount,
           txnDetails: txnDetails as AllowArray<Call>,
         });
       }
 
-      console.log("evm");
       return sendEthTxn({
         provider: provider as WalletClient,
         txnDetails: txnDetails as Partial<SendTransactionParameters>,

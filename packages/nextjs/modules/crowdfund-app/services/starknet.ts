@@ -1,8 +1,5 @@
 import { uint256 } from "starknet-dev";
-import {
-  parseParamWithType,
-  tryParsingParamReturnValues,
-} from "~~/utils/scaffold-stark/contract";
+import { tryParsingParamReturnValues } from "~~/utils/scaffold-stark/contract";
 
 export const encodeCalldataArgs = (args: any[]) => {
   const unflattened = args.map((arg) => {

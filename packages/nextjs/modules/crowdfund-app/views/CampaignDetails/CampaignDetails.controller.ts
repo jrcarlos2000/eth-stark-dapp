@@ -1,4 +1,5 @@
 import {
+  useDeployedContractInfo as useDeployedEthContractInfo,
   useScaffoldReadContract as useScaffoldReadEthContract,
   useScaffoldWriteContract as useScaffoldWriteEthContract,
 } from "~~/hooks/scaffold-eth";
@@ -11,18 +12,14 @@ import { useDeployedContractInfo as useDeployedStarkContractInfo } from "~~/hook
 import { useScaffoldReadContract as useScaffoldReadStarkContract } from "~~/hooks/scaffold-stark/useScaffoldReadContract";
 import { useIPFS } from "../../services/ipfs";
 import { useQuery } from "@tanstack/react-query";
-import {
-  createContractCall as createStarkContractCall,
-  useScaffoldMultiWriteContract as useScaffoldMultiWriteStarkContract,
-} from "~~/hooks/scaffold-stark/useScaffoldMultiWriteContract";
-import { Address, fromHex, parseEther, parseUnits } from "viem";
+import { Address, encodeFunctionData, fromHex, parseEther } from "viem";
 import useDynamicWriteTxn from "~~/hooks/dynamic/useDynamicWriteTxn";
-import { Call, CallDetails } from "starknet-dev";
 import { encodeCalldataArgs } from "../../services/starknet";
-import { parseFunctionParams } from "~~/utils/scaffold-stark/contract";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 
 export function useCampaignDetailsController(props: CampaignDetailProps) {
   const ipfsClient = useIPFS();
+  const { writeTxn } = useDynamicWriteTxn();
 
   // fetch the contract details from ethereum
   // TODO: fetch contracts from starknet
@@ -49,6 +46,8 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   // get connected address
   const { address: connectedEthAddress } = useEthAccount();
   const { address: connectedStarkAddress } = useStarkAccount();
+
+  const {} = useDynamicContext();
 
   const [depositInput, setDepositInput] = useState<number>(0);
 
@@ -94,7 +93,6 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     "CrossChainCrowdfundL2"
   );
 
-  const { writeTxn } = useDynamicWriteTxn();
   const [isDepositLoading, setIsDepositLoading] = useState(false);
 
   const { data: starkMockUsdtInfo, ...starkMockUsdtInfoState } =
@@ -107,7 +105,7 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     to?: ContractType;
   }) => {
     setIsDepositLoading(true);
-    console.log({ depositInput });
+
     return writeTxn([
       {
         contractAddress: starkMockUsdtInfo!.address,
@@ -140,6 +138,8 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   // withdraw
   const { writeContractAsync: writeToCrowdfundEth } =
     useScaffoldWriteEthContract("CrossChainCrowdfundL1");
+  const { data: l1CrowdfundContractInfo, ...l1CrowdfundContractInfoState } =
+    useDeployedEthContractInfo("CrossChainCrowdfundL1");
   const [isLoadingWithdraw, setIsLoadingWithdraw] = useState(false);
 
   // NOTE: currently will withdraw to connected starknet wallet, can improve by adding modal
@@ -147,13 +147,18 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     if (!isCampaignOwner) return;
 
     setIsLoadingWithdraw(true);
-    return writeToCrowdfundEth({
-      functionName: "campaignOwnerWithdraw",
-      value: parseEther("0.0001"),
-      args: [
-        BigInt(parseInt(props.id)),
-        fromHex(connectedStarkAddress! as unknown as Address, "bigint"),
-      ],
+
+    return writeTxn({
+      to: l1CrowdfundContractInfo!.address,
+      value: parseEther("0.00001"),
+      data: encodeFunctionData({
+        abi: l1CrowdfundContractInfo!.abi,
+        functionName: "campaignOwnerWithdraw",
+        args: [
+          BigInt(parseInt(props.id)),
+          fromHex(connectedStarkAddress! as unknown as Address, "bigint"),
+        ],
+      }),
     })
       .then(() => {
         refetchEthData();
@@ -167,6 +172,7 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     metadataQuery.isLoading ||
     crowdfundStarkContractInfo.isLoading ||
     starkMockUsdtInfoState.isLoading ||
+    l1CrowdfundContractInfoState.isLoading ||
     isLoadingWithdraw ||
     raisedAmountStarkLoading;
 
