@@ -18,7 +18,6 @@ pub mod CrossFundNativeComponent {
     #[storage]
     struct Storage {
         base_token: ContractAddress,
-
         // starknet campaigns
         strk_campaign_counter: u256,
         strk_campaign_target_amount: LegacyMap<u256, u256>,
