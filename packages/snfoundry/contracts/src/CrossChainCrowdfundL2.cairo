@@ -154,12 +154,13 @@ mod CrossChainCrowdfundL2 {
             let mut campaigns = array![];
 
             loop {
-                let campaign_id = counter - 1;
-                let campaign = self._get_campaign(campaign_id);
-                campaigns.append(campaign);
                 if counter == 1 {
                     break;
                 }
+                let campaign_id = counter - 1;
+                let campaign = self._get_campaign(campaign_id);
+                campaigns.append(campaign);
+
                 counter -= 1;
             };
 
