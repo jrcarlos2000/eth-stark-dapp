@@ -4,8 +4,8 @@ import Header from "~~/modules/crowdfund-app/components/Header";
 import { IPFSProvider } from "~~/modules/crowdfund-app/services/ipfs";
 
 export const metadata: Metadata = {
-  title: "Crowdfund",
-  description: "Get your stuff going",
+  title: "CrossFund - Cross Chain Seamless Crowdfunding",
+  description: "Seamlessly crowdfund your projects cross-chain!",
   icons: "/logo.ico",
 };
 

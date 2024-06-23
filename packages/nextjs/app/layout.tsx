@@ -4,8 +4,8 @@ import "~~/styles/globals.css";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "Scaffold-Stark",
-  description: "Fast track your starknet journey",
+  title: "CrossFund - Cross Chain Seamless Crowdfunding",
+  description: "Seamlessly crowdfund your projects cross-chain!",
   icons: "/logo.ico",
 };
 
