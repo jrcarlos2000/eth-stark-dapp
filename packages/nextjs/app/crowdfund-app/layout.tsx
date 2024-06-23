@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Header from "~~/modules/crowdfund-app/components/Header";
 import { IPFSProvider } from "~~/modules/crowdfund-app/services/ipfs";
 
 export const metadata: Metadata = {
@@ -7,8 +8,17 @@ export const metadata: Metadata = {
   icons: "/logo.ico",
 };
 
-const CrowdfundAppLayout = ({ children }: { children: React.ReactNode }) => {
+const Providers = ({ children }: { children: React.ReactNode }) => {
   return <IPFSProvider>{children}</IPFSProvider>;
+};
+
+const CrowdfundAppLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <Providers>
+      <Header />
+      {children}
+    </Providers>
+  );
 };
 
 export default CrowdfundAppLayout;
