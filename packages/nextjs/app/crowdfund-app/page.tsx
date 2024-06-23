@@ -1,7 +1,7 @@
 "use client";
 
-export interface HomePageProps {}
+import Home from "~~/modules/crowdfund-app/views/Home";
 
-export default function HomePage(props: HomePageProps) {
-  return <>homepage</>;
+export default function HomePage() {
+  return <Home />;
 }

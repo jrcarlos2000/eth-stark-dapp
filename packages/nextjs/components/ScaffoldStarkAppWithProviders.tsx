@@ -49,9 +49,7 @@ const ScaffoldStarkApp = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <div className="flex flex-col min-h-screen">
-        <Header />
         <main className="relative flex flex-col flex-1">{children}</main>
-        <Footer />
       </div>
       <Toaster />
     </>
@@ -79,6 +77,7 @@ export const ScaffoldStarkAppWithProviders = ({
   return (
     <QueryClientProvider client={queryClient}>
       <DynamicContextProvider
+        theme={"light"}
         settings={{
           environmentId: "eef08463-9eee-4347-a203-81006446159f",
           initialAuthenticationMode: "connect-only",
