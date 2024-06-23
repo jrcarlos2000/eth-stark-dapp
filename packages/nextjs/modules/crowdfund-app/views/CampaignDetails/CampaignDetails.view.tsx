@@ -87,7 +87,8 @@ function CampaignDetailsView(props: CampaignDetailProps) {
             <p className="text-sm text-neutral-400">
               You are the owner of this campaign, you can withdraw funds here,
               please be careful of this operation. The campaign will finish once
-              you withdraw.
+              you withdraw. It might take some time for the funs to arrive in
+              your wallet.
             </p>
             <button className="btn btn-error" onClick={handleOwnerWithdraw}>
               Withdraw Raised Amount

@@ -22,7 +22,7 @@ export default function Home() {
           {/* head */}
           <thead>
             <tr>
-              <th>Name</th>
+              {/* <th>Name</th> */}
               <th>Owner</th>
               <th>Network</th>
               <th>Target</th>
@@ -37,16 +37,16 @@ export default function Home() {
                 className="cursor-pointer hover:bg-neutral-200"
                 onClick={() => router.push(`/crowdfund-app/detail/${item.id}`)}
               >
-                <td>{item.name}</td>
+                {/* <td>{item.name}</td> */}
                 <td>{truncateAddress(item.owner, 4)}</td>
                 <td>{item.network}</td>
                 <td>{item.targetAmount} USDT</td>
                 <td>{item.duration} days</td>
                 <td>
                   {item.isActive ? (
-                    <div className="badge badge-error gap-2">inactive</div>
-                  ) : (
                     <div className="badge badge-success gap-2">active</div>
+                  ) : (
+                    <div className="badge badge-error gap-2">inactive</div>
                   )}
                 </td>
               </tr>

@@ -33,13 +33,13 @@ export const useHomeController = () => {
 
     return ethCampaignsDataRaw?.map((item, index) => {
       return {
-        name: `Campaign ${index + 1}`,
+        // name: `Campaign ${index}`,
         network: ContractType.ETH,
         targetAmount: Number(item.targetAmount),
         duration: Math.trunc(Number(item.duration) / 86400),
         owner: item.owner,
         isActive: item.isActive,
-        id: index + 1,
+        id: index,
       } as HomeTableItem;
     });
   }, [ethCampaignsDataRaw]);
