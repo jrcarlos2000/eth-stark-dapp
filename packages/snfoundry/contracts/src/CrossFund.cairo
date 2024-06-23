@@ -1,5 +1,10 @@
 use starknet::{ContractAddress, get_block_timestamp};
 
+// SPDX-License-Identifier: MIT
+// @author : Carlos Ramos
+// @notice :  contract handles all interactions related to l1 campaigns
+
+
 #[derive(Drop, Serde)]
 struct L1SucessCampaignMessage {
     l1CampaignId: felt252,
@@ -18,40 +23,41 @@ struct Campaign {
 }
 
 #[starknet::interface]
-pub trait ICrossChainCrowdfundL2<TContractState> {
+pub trait ICrossFund<TContractState> {
+
+    // setters
     fn create_campaign(ref self: TContractState, target_amount: u256, duration : u256, data_cid: ByteArray);
-    
-    // ethereum campaign
     fn deposit_to_eth_campaign(ref self: TContractState, eth_campaign_id: u256, amount: u256);
     fn deposit_to_strk_campaign(ref self: TContractState, strk_campaign_id: u256, amount: u256);
 
     // view functions
     fn get_strk_campaign_counter(self: @TContractState) -> u256;
     fn get_strk_campaign(self: @TContractState, campaign_id: u256) -> (u256, u256, u256, ByteArray); // shows target amount, raised amount, deadline, data_cid
-    fn get_eth_campaign(self: @TContractState, campaign_id: u256) -> u256; // todo add other elements, for now only raised amount
-
     fn get_all_campaigns(self: @TContractState) -> Array<( (u256, u256, u256, u256), (ByteArray, ContractAddress, bool))>;
 }
 
-/// @author Carlos Ramos
-/// @notice missing handling of deadlines in a crosschain context, we can use checkpoints for it
-/// @dev when claiming from a different chain, add a cooldown time, like 15 mins before.
-
 #[starknet::contract]
-mod CrossChainCrowdfundL2 {
+mod CrossFund {
+    use crossfund::CrossFundMessenger::CrossFundMessengerComponent;
     use core::traits::TryInto;
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
     use starknet::{get_caller_address, get_contract_address, EthAddress, SyscallResultTrait};
     use starknet::syscalls::send_message_to_l1_syscall;
-    use super::{ContractAddress, ICrossChainCrowdfundL2, L1SucessCampaignMessage, Campaign, get_block_timestamp};
+    use super::{ContractAddress, ICrossFund, L1SucessCampaignMessage, Campaign, get_block_timestamp};
     use core::num::traits::Zero;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: CrossFundMessengerComponent, storage: cross_fund_messenger, event: CrossFundMessengerEvent);
 
     #[abi(embed_v0)]
     impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
+    impl CrossFundMessenger = CrossFundMessengerComponent::CrossFundMessengerImpl<ContractState>;
+
+
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+    impl CrossFundMessengerInternalImpl = CrossFundMessengerComponent::InternalImpl<ContractState>;
+
 
     const ETH_CONTRACT_ADDRESS: felt252 =
         0x49D36570D4E46F48E99674BD3FCC84644DDD6B96F7C741B1562B82F9E004DC7;
@@ -61,6 +67,8 @@ mod CrossChainCrowdfundL2 {
     enum Event {
         #[flat]
         OwnableEvent: OwnableComponent::Event,
+        #[flat]
+        CrossFundMessengerEvent: CrossFundMessengerComponent::Event,
         StrkCampaignCreated: StrkCampaignCreated,
     }
 
@@ -95,17 +103,19 @@ mod CrossChainCrowdfundL2 {
 
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
+        #[substorage(v0)]
+        cross_fund_messenger: CrossFundMessengerComponent::Storage
     }
 
     #[constructor]
     fn constructor(ref self: ContractState, owner: ContractAddress, base_token: ContractAddress) {
-        self.ownable.initializer(owner);
+        // self.ownable.initializer(owner);
         self.strk_campaign_counter.write(1);
         self.base_token.write(base_token);
     }
 
     #[abi(embed_v0)]
-    impl CrossChainCrowdfundL2Impl of ICrossChainCrowdfundL2<ContractState> {
+    impl ICrossFundImpl of ICrossFund<ContractState> {
         fn create_campaign(ref self: ContractState, target_amount: u256, duration : u256, data_cid: ByteArray) {
             self._create_campaign(target_amount, duration, data_cid);
         }
@@ -122,21 +132,11 @@ mod CrossChainCrowdfundL2 {
             (target_amount, raised_amount, deadline, data_cid)
         }
 
-        fn get_eth_campaign(self: @ContractState, campaign_id: u256) -> u256 {
-            self.eth_campaign_amount_raised.read(campaign_id)
-        }
-
-
         fn deposit_to_eth_campaign(ref self: ContractState, eth_campaign_id: u256, amount: u256) {
-            // use base token
             let token = self.base_token.read();
             let is_success = IERC20CamelDispatcher { contract_address: token }.transferFrom(get_caller_address(), get_contract_address(), amount);
             assert(is_success, 'transfer failed');
-
-            let raised_amount = self.eth_campaign_amount_raised.read(eth_campaign_id);
-            self.eth_campaign_amount_raised.write(eth_campaign_id, raised_amount + amount);
-
-            // TODO store the amount raised by each user
+            self.cross_fund_messenger._increase_campaign_balance(eth_campaign_id, amount);
         }
 
         fn deposit_to_strk_campaign(ref self: ContractState, strk_campaign_id: u256, amount: u256) {
@@ -178,25 +178,7 @@ mod CrossChainCrowdfundL2 {
         let token = self.base_token.read();
         let is_success = IERC20CamelDispatcher { contract_address: token }.transfer(l2_recipient, raised_amount);
     }
-
-    /// Handles a message received from L1.
-    /// In this example, the handler is expecting the data members to both be greater than 0.
-    ///
-    /// # Arguments
-    ///
-    /// * `from_address` - The L1 contract sending the message.
-    /// * `data` - Expected data in the payload (automatically deserialized by cairo).
-    // #[l1_handler]
-    // fn msg_handler_struct(ref self: ContractState, from_address: felt252, l1Campaign: L1Campaign) {
-
-
-    //     // assert(from_address == ...);
-    //     // assert(!data.a.is_zero(), 'data.a is invalid');
-    //     // assert(!data.b.is_zero(), 'data.b is invalid');
-
-    //     // self.emit(StructReceived { l1_address: from_address, data_a: data.a, data_b: data.b, });
-    // }
-
+    
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn _create_campaign(ref self: ContractState, target_amount: u256, duration : u256, data_cid: ByteArray) {

@@ -1,6 +1,3 @@
-mod CrossChainCrowdfundL2;
+mod CrossFund;
 mod MockUsdt;
-// #[cfg(test)]
-// mod test {
-//     mod TestContract;
-// }
+mod CrossFundMessenger;

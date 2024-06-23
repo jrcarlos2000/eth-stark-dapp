@@ -28,6 +28,7 @@ contract CrossChainCrowdfundL1 is Ownable {
     }
 
     struct StrkCampaign {
+        bool isActive;
         uint256 raisedAmount;
     }
 
