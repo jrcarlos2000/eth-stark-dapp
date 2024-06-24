@@ -969,6 +969,24 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "depositToEthCampaign",
+          inputs: [
+            {
+              name: "campaignId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "amount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "payable",
+        },
+        {
+          type: "function",
           name: "getAllCampaignsData",
           inputs: [],
           outputs: [
@@ -1673,6 +1691,24 @@ const deployedContracts = {
           ],
           outputs: [],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "depositToEthCampaign",
+          inputs: [
+            {
+              name: "campaignId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "amount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "payable",
         },
         {
           type: "function",

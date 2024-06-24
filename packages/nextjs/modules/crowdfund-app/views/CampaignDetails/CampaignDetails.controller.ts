@@ -16,6 +16,7 @@ import { Address, encodeFunctionData, fromHex, parseEther } from "viem";
 import useDynamicWriteTxn from "~~/hooks/dynamic/useDynamicWriteTxn";
 import { encodeCalldataArgs } from "../../services/starknet";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { useDynamicAllAccounts } from "~~/hooks/dynamic";
 
 export function useCampaignDetailsController(props: CampaignDetailProps) {
   const ipfsClient = useIPFS();
@@ -44,10 +45,9 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
   });
 
   // get connected address
-  const { address: connectedEthAddress } = useEthAccount();
-  const { address: connectedStarkAddress } = useStarkAccount();
-
-  const {} = useDynamicContext();
+  const { primaryWallet } = useDynamicContext();
+  const { connectedEthAddress, connectedStarkAddress } =
+    useDynamicAllAccounts();
 
   const [depositInput, setDepositInput] = useState<number>(0);
 
@@ -62,6 +62,7 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
       startTime,
       dataCid,
       address,
+      isActive,
     ] = campaignDetailDataEthRaw;
 
     return {
@@ -72,6 +73,7 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
       startTime: Number(startTime),
       dataCid,
       address,
+      isActive,
     };
   }, [campaignDetailDataEthRaw, raisedAmountStark]);
 
@@ -105,6 +107,10 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     to?: ContractType;
   }) => {
     setIsDepositLoading(true);
+
+    // console.log("deposit", {
+    //   depositInput,
+    // });
 
     return writeTxn([
       {
@@ -193,5 +199,6 @@ export function useCampaignDetailsController(props: CampaignDetailProps) {
     isPageLoading,
     isGoal,
     handleOwnerWithdraw,
+    primaryWallet,
   };
 }
