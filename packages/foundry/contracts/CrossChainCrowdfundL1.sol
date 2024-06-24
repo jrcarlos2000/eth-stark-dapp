@@ -14,8 +14,8 @@ contract CrossChainCrowdfundL1 is Ownable {
     uint256 internal _l2ContractAddress;
     address internal _baseToken;
 
-    uint256 public SET_SUCCESSFUL_CAMPAIGN =
-        0x2f2311889ce7c6dd0861f57466ac4f28b41ea2c5dadef8c603c6cbabaa5714e; // set_successful_campaign function on l2
+    uint256 public L1_MESSAGE =
+        0x3ed916ce45b46db122d7ebf0041611edc7974ee693102ae069e6c28d0afc8f9; // l1_message function on l2
 
     struct EthCampaign {
         uint256 targetAmount;
@@ -28,6 +28,7 @@ contract CrossChainCrowdfundL1 is Ownable {
     }
 
     struct StrkCampaign {
+        bool isActive;
         uint256 raisedAmount;
     }
 
@@ -38,6 +39,11 @@ contract CrossChainCrowdfundL1 is Ownable {
         uint256 deadline,
         string dataCid
     );
+
+    enum CampaignType {
+        ETH,
+        STRK
+    }
 
     uint256 campaignCounter = 1;
     mapping(uint256 => EthCampaign) public campaigns;
@@ -79,22 +85,27 @@ contract CrossChainCrowdfundL1 is Ownable {
         campaignCounter++;
     }
 
-    function depositToEthCampaign(
-        uint256 campaignId,
-        uint256 amount
-    ) external payable {
+    function depositToEthCampaign(uint256 campaignId, uint256 amount) external {
         EthCampaign memory _EthCampaign = campaigns[campaignId];
         require(_EthCampaign.isActive == true, "Campaign is still active");
-        IERC20(_baseToken).transferFrom(
-            address(msg.sender),
-            address(this),
-            amount
-        );
+        IERC20(_baseToken).transferFrom(msg.sender, address(this), amount);
         _EthCampaign.raisedAmount += amount;
         campaigns[campaignId] = _EthCampaign;
     }
 
-    function campaignOwnerWithdraw(
+    function depositToStrkCampaign(
+        uint256 campaignId,
+        uint256 amount
+    ) external {
+        StrkCampaign memory _StrkCampaign = strkCampaigns[campaignId];
+        require(_StrkCampaign.isActive == true, "Campaign is still active");
+        IERC20(_baseToken).transferFrom(msg.sender, address(this), amount);
+        _StrkCampaign.raisedAmount += amount;
+        strkCampaigns[campaignId] = _StrkCampaign;
+    }
+
+    // TODO: add checks for the campaign to be active and for the address to be valid on l2
+    function withdraw(
         uint256 campaignId,
         uint256 l2recipient
     ) external payable {
@@ -106,21 +117,35 @@ contract CrossChainCrowdfundL1 is Ownable {
         require(_EthCampaign.isActive == true, "Campaign is still active");
         _EthCampaign.isActive = false;
 
-        uint256 amount = _EthCampaign.raisedAmount;
-        _EthCampaign.raisedAmount = 0;
-        IERC20(_baseToken).transfer(address(uint160(l2recipient)), amount);
+        bool hasRaised = _EthCampaign.raisedAmount >= _EthCampaign.targetAmount;
 
-        campaigns[campaignId] = _EthCampaign;
-
-        // l2 message
-        uint256[] memory payload = new uint256[](2);
-        payload[0] = campaignId;
-        payload[1] = l2recipient;
-        _starknetMessaging.sendMessageToL2{value: msg.value}(
-            _l2ContractAddress,
-            SET_SUCCESSFUL_CAMPAIGN,
-            payload
-        );
+        if (!hasRaised) {
+            // l2 message
+            uint256[] memory payload = new uint256[](3);
+            payload[0] = campaignId;
+            payload[1] = 0;
+            payload[2] = l2recipient;
+            _starknetMessaging.sendMessageToL2{value: msg.value}(
+                _l2ContractAddress,
+                L1_MESSAGE,
+                payload
+            );
+        } else {
+            uint256 amount = _EthCampaign.raisedAmount;
+            _EthCampaign.raisedAmount = 0;
+            IERC20(_baseToken).transfer(_EthCampaign.owner, amount);
+            campaigns[campaignId] = _EthCampaign;
+            // l2 message
+            uint256[] memory payload = new uint256[](3);
+            payload[0] = campaignId;
+            payload[1] = 1;
+            payload[2] = l2recipient;
+            _starknetMessaging.sendMessageToL2{value: msg.value}(
+                _l2ContractAddress,
+                L1_MESSAGE,
+                payload
+            );
+        }
     }
 
     // note: match starknet contract call
@@ -135,86 +160,4 @@ contract CrossChainCrowdfundL1 is Ownable {
         }
         return allCampaigns;
     }
-
-    // function createCampaign(
-    //     uint8 campaignType,
-    //     uint256 targetAmount,
-    //     address token,
-    //     uint256 timeLeft,
-    //     string memory dataCid
-    // ) external payable {
-    //     if (CampaignType(campaignType) == CampaignType.ETHEREUM) {
-    //         campaigns[campaignCounter] = Campaign({
-    //             targetAmount: targetAmount,
-    //             raisedAmount: 0,
-    //             token: token,
-    //             deadline: block.timestamp + timeLeft,
-    //             dataCid: dataCid
-    //         });
-    //         campaignCounter++;
-    //     } else (CampaignType(campaignType) == CampaignType.STARKNET) {
-    //         uint256[] memory payload = new uint256[](4);
-    //         payload[0] = targetAmount;
-    //         payload[1] = uint256(uint160(token));
-    //         payload[2] = timeLeft;
-    //         payload[3] = uint256(uint160(address(msg.sender)));
-    //         _starknetMessaging.sendMessageToL2{value: msg.value}(
-    //             _l2ContractAddress,
-    //             CREATE_CAMPAIGN_FROM_L1_SELECTOR,
-    //             payload
-    //         );
-    //     }
-    // }
-
-    function withdraw(uint256 campaignId) external {
-        // _starknetMessaging.sendMessageToL2{value: msg.value}(
-        //     l2ContractAddress,
-        //     SINGLE_VALUE_L2_SELECTOR,
-        //     payload
-        // );
-    }
-
-    // function sendMessage(
-    //     uint256 l2ContractAddress,
-    //     uint256 randomNumber
-    // ) external payable {
-    //     uint256[] memory payload = new uint256[](1);
-    //     payload[0] = randomNumber;
-
-    //     _starknetMessaging.sendMessageToL2{value: msg.value}(
-    //         l2ContractAddress,
-    //         SET_SUCCESSFUL_CAMPAIGN,
-    //         payload
-    //     );
-    // }
-
-    // function sendMessage(
-    //     uint256 l2ContractAddress,
-    //     uint256 randomNumber1,
-    //     uint256 randomNumber2
-    // ) external payable {
-    //     _starknetMessaging.sendMessageToL2{value: msg.value}(
-    //         l2ContractAddress,
-    //         SINGLE_VALUE_L2_SELECTOR,
-    //         payload
-    //     );
-    // }
-
-    /**
-       @notice A simple function that sends a message with a pre-determined payload.
-    */
-    // function sendMessageValue(
-    //     uint256 contractAddress,
-    //     uint256 selector,
-    //     uint256 value
-    // ) external payable {
-    //     uint256[] memory payload = new uint256[](1);
-    //     payload[0] = value;
-
-    //     _starknetMessaging.sendMessageToL2{value: msg.value}(
-    //         contractAddress,
-    //         selector,
-    //         payload
-    //     );
-    // }
 }

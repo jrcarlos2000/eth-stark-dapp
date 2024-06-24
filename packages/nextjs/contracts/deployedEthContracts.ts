@@ -1203,7 +1203,7 @@ const deployedContracts = {
   },
   11155111: {
     MockUSDT: {
-      address: "0x29dea1cc1c94534745f0ecd1a9f46dfa74c3efad",
+      address: "0xff549ea75c5bb6c6086e3790ee95bb4071bae472",
       abi: [
         {
           type: "constructor",
@@ -1558,7 +1558,7 @@ const deployedContracts = {
       },
     },
     CrossChainCrowdfundL1: {
-      address: "0x5b930db403f26dddd32f2aeefce230c5f7d2f4eb",
+      address: "0xfc42979be41939ce05836dc47ca8269fd90b37d3",
       abi: [
         {
           type: "constructor",

@@ -756,7 +756,7 @@ const deployedContracts = {
   sepolia: {
     MockUsdt: {
       address:
-        "0x033e6f0f15477c67da8fcd74051a3cd01f500fceabf4f302625c037f4f9570a0",
+        "0x007b681c659e80cbd1b863565f15a56a27b982f8df365b70e7c22aede109a39d",
       abi: [
         {
           type: "impl",
@@ -1148,7 +1148,7 @@ const deployedContracts = {
     },
     CrossChainCrowdfundL2: {
       address:
-        "0x03f467eda2a1e009bf1d474498dd9b84100fc8fbf02e3cdc1b4d63f84d39003c",
+        "0x017dec6ea1142e8fba7c0adf0328981650cfaefe30bf21080d14ff52deed1363",
       abi: [
         {
           type: "impl",
